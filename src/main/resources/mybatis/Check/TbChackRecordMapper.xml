@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.Check.dao.TbChackRecordDao">
+
+    <sql id="resultSql">
+        CHACK_RECORD_ID  as chackRecordId,
+        CHACK_NO as chackNo,
+        CHACK_ID as chackId,
+        CHACK_NAME as chackName,
+        RESULT as result,
+        OPINION as opinion,
+        `TYPE` as `type`,
+        IS_SYSTEM as isSystem,
+        CHACK_TIME as chackTime
+    </sql>
+    <sql id="whereSql">
+        <where>
+            <if test="chackRecordId != null and chackRecordId != ''">
+                CHACK_RECORD_ID = #{chackRecordId}
+            </if>
+            <if test="chackNo != null and chackNo != ''">
+                CHACK_NO = #{chackNo}
+            </if>
+            <if test="chackId != null and chackId != ''">
+                and CHACK_ID = #{chackId}
+            </if>
+            <if test="chackName != null and chackName != ''">
+                and CHACK_NAME LIKE CONCAT(CONCAT('%', #{chackName}), '%')
+            </if>
+            <if test="result != null and result != ''">
+                and RESULT = #{result}
+            </if>
+            <if test="opinion != null and opinion != ''">
+                and OPINION = #{opinion}
+            </if>
+            <if test="type != null and type != ''">
+                and `TYPE` = #{type}
+            </if>
+            <if test="isSystem != null and isSystem != ''">
+                and IS_SYSTEM = #{isSystem}
+            </if>
+            <if test="chackTime != null and chackTime != ''">
+                and CHACK_TIME = #{chackTime}
+            </if>
+        </where>
+    </sql>
+
+
+    <select id="get" parameterType="com.bootdo.Check.domain.TbChackRecord"
+            resultType="com.bootdo.Check.domain.TbChackRecord">
+        select
+        <include refid="resultSql"/>
+        from TB_CHACK_RECORD
+        <include refid="whereSql"/>
+    </select>
+
+    <select id="find" parameterType="java.lang.String" resultType="com.bootdo.Check.domain.TbChackRecord">
+        select
+        <include refid="resultSql"/>
+        from TB_CHACK_RECORD
+        where CHACK_RECORD_ID = #{chackRecordId}
+    </select>
+
+    <select id="queryTbChackRecord" parameterType="java.util.Map" resultType="com.bootdo.Check.domain.TbChackRecord">
+        select
+        <include refid="resultSql"/>
+        from TB_CHACK_RECORD
+        where CHACK_NO = #{chackNo}
+        and `TYPE` = #{type}
+    </select>
+
+    <insert id="insert" parameterType="com.bootdo.Check.domain.TbChackRecord">
+      INSERT INTO TB_CHACK_RECORD
+      (CHACK_NO ,CHACK_ID ,CHACK_NAME ,
+      RESULT ,OPINION ,TYPE ,IS_SYSTEM ,CHACK_TIME)
+      VALUES
+      (#{chackNo},#{chackId},#{chackName},#{result},#{opinion},#{type},
+      #{isSystem},DEFAULT)
+    </insert>
+
+    <update id="update" parameterType="com.bootdo.Check.domain.TbChackRecord">
+        update TB_CHACK_RECORD
+        <set>
+            <if test="chackNo != null and chackNo != ''">
+                CHACK_NO = #{chackNo},
+            </if>
+            <if test="chackId != null and chackId != ''">
+                CHACK_ID = #{chackId},
+            </if>
+            <if test="chackName != null and chackName != ''">
+                CHACK_NAME = #{chackName},
+            </if>
+            <if test="result != null and result != ''">
+                RESULT = #{result},
+            </if>
+            <if test="opinion != null and opinion != ''">
+                OPINION = #{opinion},
+            </if>
+            <if test="type != null and type != ''">
+                `TYPE` = #{type},
+            </if>
+            <if test="isSystem != null and isSystem != ''">
+                IS_SYSTEM = #{isSystem},
+            </if>
+            CHACK_TIME = DEFAULT
+        </set>
+        where CHACK_RECORD_ID = #{chackRecordId}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.String" >
+      delete from TB_CHACK_RECORD where CHACK_RECORD_ID = #{chackRecordId}
+    </delete>
+
+</mapper>

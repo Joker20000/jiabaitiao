@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg" style="overflow: hidden" sroll="no">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-body">
+                    <div class="fixed-table-toolbar">
+                        <div class="col-xs-4 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="realname" type="text" class="form-control"
+                                   placeholder="员工姓名" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="col-xs-4 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="email" type="text" class="form-control"
+                                   placeholder="员工邮箱" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="col-xs-4 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="companyName" type="text" class="form-control"
+                                   placeholder="企业名称" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="columns pull-right" style="margin-bottom: 0px;">
+                            <button class="btn btn-success" onclick="reLoad()">查询</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="z-index: 1;display: inline-block;width: 100%;">
+                    <table id="exampleTable" data-mobile-responsive="true">
+                    </table>
+                    </div>
+                    <span class="col-xs-1" style="color: red;width: 5px;padding-top: 10px;">*</span>
+                    <div class="col-xs-8 col-md-12" style="padding-left: 0;">
+                        <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                        </div><!---清空按钮-->
+                        <input id="Remarks" type="text" style="padding-left: 0;" class="form-control"
+                               placeholder="备注" onkeydown="onKeyDown(event)">
+                    </div>
+                    <div class="columns pull-right">
+                        <button class="btn btn-success" onclick="layer.close(layer.index);
+                     window.parent.location.reload()">取消</button>
+                    </div>
+                    <div class="columns pull-right">
+                        <button class="btn btn-success" style="margin-right: 20px;" onclick="batchRemove()">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="include::footer"></div>
+<script type="text/javascript" src="/js/appjs/BlackList/BlacklistAdd.js">
+
+</script>
+<script>
+    <!--清空方法-->
+    $("input").focus(function () {
+        $(this).parent().children(".input_clear").show();
+    });
+    $("input").blur(function () {
+        if ($(this).val() == '') {
+            $(this).parent().children(".input_clear").hide();
+        }
+    });
+    $(".input_clear").click(function () {
+        $(this).parent().find('input').val('');
+        $(this).hide();
+    });
+
+</script>
+</body>
+</html>

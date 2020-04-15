@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="col-sm-12">
+			<div class="ibox">
+				<div class="ibox-body">
+					<div class="fixed-table-toolbar">
+
+						<div class="col-xs-10 col-md-3">
+							<div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+							</div><!---清空按钮-->
+							<input id="eName" type="text" class="form-control"
+								   placeholder="企业名称" onkeydown="onKeyDown(event)">
+						</div>
+						<div class="col-xs-10 col-md-3">
+							<div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+							</div><!---清空按钮-->
+							<input id="loanNum" type="text" class="form-control"
+								   placeholder="借款订单号" onkeydown="onKeyDown(event)">
+						</div>
+						<div class="col-xs-10 col-md-3">
+							<div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+							</div><!---清空按钮-->
+							<input type="text" class="laydate-icon form-control" id="qBeginTime" name="createDatee"
+								   onclick="laydate({istime: true, format: 'YYYY-MM-DD'})" style="background-color: #fff;" readonly="readonly" placeholder="订单生成时间(Start)"/>
+						</div>
+						<div class="col-xs-10 col-md-3">
+							<div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+							</div><!---清空按钮-->
+							<input type="text" class="laydate-icon form-control" id="qEndTime" name="createDates"
+								   onclick="laydate({istime: true, format: 'YYYY-MM-DD'})" style="background-color: #fff;" readonly="readonly" placeholder="订单生成时间(End)"/>
+						</div>
+						<div class="columns col-xs-10 col-md-3">
+							<select class="form-control chosen-select"
+									tabindex="2" style="width: 100%" id="chackState" onkeydown="onKeyDown(event)">
+								<option value="">审批状态</option>
+								<option value="0">待审批</option>
+								<option value="1">审批通过</option>
+								<option value="2">审批驳回</option>
+							</select>
+						</div>
+						<div class="columns col-xs-10 col-md-3">
+							<select class="form-control chosen-select"
+									tabindex="2" style="width: 100%" id="orderState" onkeydown="onKeyDown(event)">
+								<option value="">订单状态</option>
+								<option value="0">待处理</option>
+								<option value="1">处理中</option>
+								<option value="2">成功</option>
+								<option value="3">失败</option>
+							</select>
+						</div>
+						<div class="columns col-xs-10 col-md-3">
+							<select class="form-control chosen-select"
+									tabindex="2" style="width: 100%" id="repayState" onkeydown="onKeyDown(event)">
+								<option value="">还款状态</option>
+								<option value="0">待还款</option>
+								<option value="1">还款中</option>
+								<option value="2">已还清</option>
+							</select>
+						</div>
+						<div class="columns col-xs-10 col-md-3">
+							<select class="form-control chosen-select"
+									tabindex="2" style="width: 100%" id="overState" onkeydown="onKeyDown(event)">
+								<option value="">逾期状态</option>
+								<option value="0">未逾期</option>
+								<option value="1">已逾期</option>
+							</select>
+						</div>
+					</div>
+					<div class="columns pull-right">
+						<button class="btn btn-success" onclick="reLoad()">查询</button>
+					</div>
+					<div class="columns pull-right"style="float:left;margin-right:30px;">
+						<!--<button shiro:hasPermission="loan:loan:downExcel" type="button"
+								class="btn  btn-primary" onclick="loanOrderDownExcel()">
+							<i class="fa-plus" aria-hidden="true"></i>导出
+						</button>-->
+						<button type="button" class="btn btn-primary" onclick="exportExcel()">
+							<i class="fa fa-export" aria-hidden="true"></i>下载
+						</button>
+                        <button shiro:hasPermission="loan:loan:batchRemove" type="button"
+								class="btn  btn-danger" onclick="batchRemove()">
+							<i class="fa" aria-hidden="true"></i>放款审批
+						</button>
+					</div>
+					<table id="exampleTable" data-mobile-responsive="true">
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案-->
+	<div>
+		<script type="text/javascript">
+			var s_remove_h = 'hidden';
+            var s_down_e = 'hidden';
+		</script>
+	</div>
+	<div shiro:hasPermission="loan:loan:batchRemove">
+		<script type="text/javascript">
+			var s_remove_h = '';
+		</script>
+	</div>
+	<div shiro:hasPermission="loan:loan:downExcel">
+		<script type="text/javascript">
+            var s_down_e = '';
+		</script>
+	</div>
+	<div th:include="include :: footer"></div>
+	<script type="text/javascript" src="/js/appjs/loan/loan.js"></script>
+	<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js" ></script>
+
+	<script>
+        <!--清空方法-->
+        $("input").focus(function () {
+            $(this).parent().children(".input_clear").show();
+        });
+        $("input").blur(function () {
+            if ($(this).val() == '') {
+                $(this).parent().children(".input_clear").hide();
+            }
+        });
+        $(".input_clear").click(function () {
+            $(this).parent().find('input').val('');
+            $(this).hide();
+        });
+
+        function onKeyDown(event){
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            if(e && e.keyCode==13){
+                reLoad();
+            }
+
+        }
+	</script>
+</body>
+</html>

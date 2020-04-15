@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.Account.dao.IFlowDao">
+	<select id="list" parameterType="java.lang.String" resultType="com.bootdo.Account.domain.Accounter">
+		SELECT
+		e.trade_flow as tradeflow,
+		e.relevant_order as relevantorder,
+		e.account_no as accountno,
+		CONCAT(case when e.add_or_sub = '01' then '+' when e.add_or_sub = '02' then '-' when e.add_or_sub = '03' then '+' else e.add_or_sub end,e.amount) as amount,
+		e.bus_type as bustype,
+		e.credit_limit as creditlimit,
+		e.usable_limit as usablelimit,
+		e.state as state,
+		e.create_time as createtime,
+		c.account_no as accountno,
+		c.e_id as eid,
+		te.c_e_id as ceid,
+		te.e_name as ename
+		FROM t_act_account_flow e,t_act_account c,t_enterprise te
+		where
+		c.account_no=e.account_no
+		and c.e_id = te.e_id
+
+		<if test="bustype != null and  bustype !=''">
+			and  e.bus_type =#{bustype}
+		</if>
+		<if test="relevantorder != null and  relevantorder !=''">
+			and  e.relevant_order like #{relevantorder}
+		</if>
+		<if test="ceid != null and  ceid !=''">
+			and  te.c_e_id like #{ceid}
+		</if>
+		<if test="ename != null and  ename !=''">
+			and  te.e_name like #{ename}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.create_time >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.create_time <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+		order by e.trade_flow desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from t_act_account_flow e,t_act_account c,t_enterprise te
+		where
+		c.account_no=e.account_no
+		and c.e_id = te.e_id
+		<if test="bustype != null and  bustype !=''">
+			and  e.bus_type =#{bustype}
+		</if>
+		<if test="relevantorder != null and  relevantorder !=''">
+			and  e.relevant_order  like #{relevantorder}
+		</if>
+		<if test="ceid != null and  ceid !=''">
+			and  te.c_e_id  like #{ceid}
+		</if>
+		<if test="ename != null and  ename !=''">
+			and  te.e_name like #{ename}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.create_time >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.create_time <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+
+	</select>
+
+	<!--下载-->
+	<select id="FloExcel"  resultType="java.util.HashMap">
+		SELECT
+		e.trade_flow as tradeflow,
+		e.relevant_order as relevantorder,
+		e.account_no as accountno,
+		CONCAT(case when e.add_or_sub = '01' then '+' when e.add_or_sub = '02' then '-' when e.add_or_sub = '03' then '+' else e.add_or_sub end,e.amount) as amount,
+		e.bus_type as bustype,
+		e.credit_limit as creditlimit,
+		e.usable_limit as usablelimit,
+		e.state as state,
+		e.create_time as createtime,
+		c.account_no as accountno,
+		c.e_id as eid,
+		te.c_e_id as ceid,
+		te.e_name as ename,
+		te.channel as channel
+		FROM t_act_account_flow e,t_act_account c,t_enterprise te
+		where
+		c.account_no=e.account_no
+		and c.e_id = te.e_id
+		<if test="bustype != null and  bustype !=''">
+			and  e.bus_type =#{bustype}
+		</if>
+		<if test="relevantorder != null and  relevantorder !=''">
+			and  e.relevant_order like #{relevantorder}
+		</if>
+		<if test="ceid != null and  ceid !=''">
+			and  te.c_e_id like #{ceid}
+		</if>
+		<if test="ename != null and  ename !=''">
+			and  te.e_name like #{ename}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.create_time >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.create_time <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+		order by e.trade_flow desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+</mapper>

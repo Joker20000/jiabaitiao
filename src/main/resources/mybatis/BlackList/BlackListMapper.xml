@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.BlackList.dao.BlackListDao">
+    
+      
+    <select id="findBlackListByCondition" parameterType="map" resultType="com.bootdo.BlackList.domain.Blacklist">
+			select
+			tu.USER_ID as "userId",
+			tu.COMPANY_ID as "companyId",
+			tu.COMPANY_NAME as "companyName",
+			ti.REALNAME as "realname",
+			tu.MOBILE as "mobile",
+			ti.CARDID as "cardid",
+			tu.EMAIL as "email",
+			tb.REASON as "reason",
+			tb.STATE as "state",
+			tb.OPERATE_MAN as "operateMan",
+			tb.OPERATE_TIME as "operateTime"
+			from  TB_BLACKLIST tb,TB_USER tu,TB_ACT_USER_ACCOUNT ta,TB_ACT_ACCOUNT_REL tr,TB_ACCOUNT_INFO ti
+			where
+			tb.USER_ID=tu.USER_ID AND tu.USER_ID = ta.USER_ID AND ta.ACCOUNT_ID = tr.ACCOUNT_ID AND tr.ACCOUNT_NO = ti.ACCOUNT_NO
+    	    <if test="companyName!=null and companyName!='' ">
+				and tu.COMPANY_NAME like #{companyName}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			<if test="state!=null and state!='' ">
+				and tb.STATE = #{state}
+			</if>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+    </select>
+    
+    
+    
+    
+     <select id="findBlackListCountByCondition"  parameterType="map"  resultType="Long">
+			 select
+			 count(*)
+			 from  TB_BLACKLIST tb,TB_USER tu,TB_ACT_USER_ACCOUNT ta,TB_ACT_ACCOUNT_REL tr,TB_ACCOUNT_INFO ti
+			 where
+			 tb.USER_ID=tu.USER_ID AND tu.USER_ID = ta.USER_ID AND ta.ACCOUNT_ID = tr.ACCOUNT_ID AND tr.ACCOUNT_NO = ti.ACCOUNT_NO
+    	    <if test="companyName!=null and companyName!='' ">
+				and tu.COMPANY_NAME like #{companyName}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			<if test="state!=null and state!='' ">
+				and tb.STATE = #{state}
+			</if>
+    </select>
+    
+      
+      
+      
+      <select id="findStateByuserId"   resultType="String">
+       select STATE from  TB_BLACKLIST where USER_ID=#{userId}
+      </select>
+    
+    
+      <select id="updateBlackListState" >
+             update
+            TB_BLACKLIST t
+              set
+         		t.STATE =#{state},
+         		t.OPERATE_TIME=#{operateTime}		 
+              where 
+                t.USER_ID=#{userId}                      	
+         </select>
+    
+    
+      <select id="updateBlackListState1" parameterType="com.bootdo.BlackList.domain.Blacklist">
+             update
+            TB_BLACKLIST t
+              set
+         		t.STATE =#{state} ,
+         		t.OPERATE_MAN=#{operateMan}	,
+         		t.OPERATE_TIME=#{operateTime},
+         		t.REASON=#{reason},
+         		t.LAST_TIME=#{lastTime}
+              where 
+                t.USER_ID=#{userId}                      	
+         </select>
+          
+    
+     <insert  id="addBlackListInfo" parameterType="com.bootdo.BlackList.domain.Blacklist">
+     	insert  into  TB_BLACKLIST(USER_ID,OPERATE_MAN,OPERATE_TIME,REASON,STATE,CREATE_TIME,LAST_TIME)
+     	     values(#{userId},#{operateMan},#{operateTime},#{reason},#{state},#{createTime},#{lastTime})
+     	
+     </insert>
+    
+	
+</mapper> 

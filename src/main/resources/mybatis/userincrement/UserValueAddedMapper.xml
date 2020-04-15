@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.increment.dao.UserValueAddedDao">
+    <resultMap id="userMap" type="com.bootdo.increment.domain.TbIncrementUser">
+        <id column="user_id" property="userId"></id>
+        <result column="user_name" property="userName"></result>
+        <result column="user_mobile" property="userMobile"></result>
+        <result column="user_email" property="userEmail"></result>
+        <result column="user_channel_id" property="userChannelId"></result>
+        <result column="ent_id" property="entId"></result>
+        <result column="ent_name" property="entName"></result>
+        <result column="guid" property="guid"></result>
+        <result column="geid" property="geid"></result>
+        <result column="data_state" property="dataState"></result>
+        <result column="create_date" property="createDate"></result>
+        <result column="update_date" property="updateDate"></result>
+        <collection javaType="java.util.List" property="userAccountList"
+                    ofType="com.bootdo.increment.domain.TbIncrementUserAccount">
+            <id column="account_id" property="accountId"></id>
+            <result column="user_id" property="userId"></result>
+            <result column="account_type" property="accountType"></result>
+            <result column="increment_amount" property="incrementAmount"></result>
+            <result column="reward_amount" property="rewardAmount"></result>
+            <result column="data_state" property="dataState"></result>
+            <result column="create_date" property="createDate"></result>
+            <result column="update_date" property="updateDate"></result>
+        </collection>
+        <collection property="incrementOrderList" javaType="java.util.List"
+                    ofType="com.bootdo.increment.domain.TbIncrementOrder">
+            <id column="order_id" property="orderId"></id>
+            <result column="user_id" property="userId"></result>
+            <result column="ext_order_id" property="extOrderId"></result>
+            <result column="salary_reward_amount" property="salaryRewardAmount"></result>
+            <result column="benefit_reward_amount" property="benefitRewardAmount"></result>
+            <result column="cash_reward_amount" property="cashRewardAmount"></result>
+            <result column="total_reward_amount" property="totalRewardAmount"></result>
+            <result column="fudou" property="fudou"></result>
+            <result column="order_state" property="orderState"></result>
+            <result column="data_state" property="dataState"></result>
+            <result column="create_date" property="createDate"></result>
+            <result column="update_date" property="updateDate"></result>
+            <result column="statistics_date" property="statisticsDate"></result>
+            <result column="complate_date" property="complateDate"></result>
+            <collection property="incrementRewardList" javaType="java.util.List"
+                        ofType="com.bootdo.increment.domain.TbIncrementReward">
+                <id column="reward_id" property="rewardId"></id>
+                <result column="account_id" property="accountId"></result>
+                <result column="add_amount" property="addAmount"></result>
+                <result column="reward_amount" property="rewardAmount"></result>
+                <result column="annualized_rate" property="annualizedRate"></result>
+                <result column="order_id" property="orderId"></result>
+                <result column="data_state" property="dataState"></result>
+                <result column="statistics_date" property="statisticsDate"></result>
+                <result column="create_date" property="createDate"></result>
+                <result column="update_date" property="updateDate"></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+
+    <!--增值持有查询条件sql-->
+    <sql id="UserValueAdd">
+        <where>
+            tb_increment_user.user_id=tb_increment_user_account.user_id
+            <if test="userName != null and userName != ''">
+                and tb_increment_user.user_name like '${userName}%'
+            </if>
+            <if test="userMobile != null and userMobile != ''">
+                and tb_increment_user.user_mobile like '${userMobile}'
+            </if>
+            <if test="userEmail != null and userEmail !=''">
+                and tb_increment_user.user_email like '${userEmail}'
+            </if>
+            <if test="userChannelId !=null and userChannelId != ''">
+                and tb_increment_user.user_channel_id = #{userChannelId}
+            </if>
+            <if test="entName!= null and entName != ''">
+                and tb_increment_user.ent_name like '${entName}'
+            </if>
+            <if test="accountType != null and accountType != ''">
+                and tb_increment_user_account.account_type =#{accountType}
+            </if>
+            <if test="createDateStart != null and createDateStart != ''">
+                and tb_increment_user_account.create_date >= #{createDateStart}
+            </if>
+            <if test="createDateEnd != null and createDateEnd != ''">
+                and tb_increment_user_account.create_date &lt;= #{createDateEnd}
+            </if>
+            <if test="updateDateStart != null and updateDateStart != ''">
+                and tb_increment_user_account.update_date >= #{updateDateStart}
+            </if>
+            <if test="updateDateEnd != null and updateDateEnd != ''">
+                and tb_increment_user_account.update_date &lt;= #{updateDateEnd}
+            </if>
+        </where>
+    </sql>
+    <!--  增值奖励查询 sql -->
+    <sql id="ValueAddReward">
+        <where>
+            tb_increment_user.user_id = tb_increment_user_account.user_id
+            AND tb_increment_user.user_id = tb_increment_order.user_id
+            AND tb_increment_user_account.account_id = tb_increment_reward.account_id
+            AND tb_increment_order.order_id = tb_increment_reward.order_id
+            <if test="userName != null and userName !=''">
+                and tb_increment_user.user_name like '${userName}%'
+            </if>
+            <if test="userMobile != null and userMobile!= ''">
+                and tb_increment_user.user_mobile like '${userMobile}%'
+            </if>
+            <if test="userEmail!=null and userEmail != ''">
+                and tb_increment_user.user_email like '${userEmail}%'
+            </if>
+            <if test="userChannelId != null and userChannelId != ''">
+                and tb_increment_user.user_channel_id =#{userChannelId}
+            </if>
+            <if test="entName != null and entName != ''">
+                and tb_increment_user.ent_name like '${entName}%'
+            </if>
+            <if test="accountType != null and accountType !=''">
+                and tb_increment_user_account.account_type =#{accountType}
+            </if>
+            <if test="orderId !=null and orderId != ''">
+                and tb_increment_reward.order_id like '${orderId}'
+            </if>
+            <if test="orderState != null and orderState!= ''">
+                and tb_increment_order.order_state =#{orderState}
+            </if>
+            <if test="statisticsDateStart != null and statisticsDateStart != ''">
+                and tb_increment_reward.statistics_date >= #{statisticsDateStart}
+            </if>
+            <if test="statisticsDateEnd != null and statisticsDateEnd != ''">
+                and tb_increment_reward.statistics_date &lt;= #{statisticsDateEnd}
+            </if>
+        </where>
+    </sql>
+    <!--  奖励订单查询 sql -->
+    <sql id="AwardingOrder">
+        <where>
+            tb_increment_user.user_id = tb_increment_order.user_id
+            <if test="orderId != null and orderId!= ''">
+                and tb_increment_order.order_id like '${orderId}%'
+            </if>
+            <if test="extOrderId != null and extOrderId!= ''">
+                and tb_increment_order.ext_order_id like '${extOrderId}%'
+            </if>
+            <if test="userName != null and userName!= ''">
+                and tb_increment_user.user_name like '${userName}%'
+            </if>
+            <if test="userMobile != null and userMobile!= ''">
+                and tb_increment_user.user_mobile like '${userMobile}%'
+            </if>
+            <if test="userEmail != null and userEmail!= ''">
+                and tb_increment_user.user_mobile like '${userEmail}%'
+            </if>
+            <if test="entName != null and entName !=''">
+                and tb_increment_user.ent_name like '${entName}%'
+            </if>
+            <if test="userChannelId != null and userChannelId != ''">
+                and tb_increment_user.user_channel_id =#{userChannelId}
+            </if>
+            <if test="orderState != null and orderState!= ''">
+                and tb_increment_order.order_state =#{orderState}
+            </if>
+            <if test="createDateStart != null and createDateStart != ''">
+                and tb_increment_order.create_date >= #{createDateStart}
+            </if>
+            <if test="createDateEnd != null and createDateEnd != ''">
+                and tb_increment_order.create_date &lt;= #{createDateEnd}
+            </if>
+            <if test="complateDateStart != null and complateDateStart != ''">
+                and tb_increment_order.complate_date >= #{complateDateStart}
+            </if>
+            <if test="complateDateEnd != null and complateDateEnd != ''">
+                and tb_increment_order.complate_date &lt;= #{complateDateEnd}
+            </if>
+            <if test="statisticsDateStart != null and statisticsDateStart!= ''">
+                and tb_increment_order.statistics_date >= #{statisticsDateStart}
+            </if>
+            <if test="statisticsDateEnd != null and statisticsDateEnd != ''">
+                and tb_increment_order.statistics_date &lt;= #{statisticsDateEnd}
+            </if>
+        </where>
+    </sql>
+
+
+    <!--增值持有查询-->
+    <select id="selectUserValueAddList" resultMap="userMap">
+        SELECT
+        tb_increment_user.user_name,
+        tb_increment_user.user_mobile,
+        tb_increment_user.user_email,
+        tb_increment_user.user_channel_id,
+        tb_increment_user.ent_name,
+        tb_increment_user_account.increment_amount,
+        tb_increment_user_account.account_type,
+        tb_increment_user_account.update_date,
+        tb_increment_user_account.create_date
+        FROM
+        tb_increment_user,
+        tb_increment_user_account
+        <include refid="UserValueAdd"></include>
+        GROUP BY tb_increment_user.user_email,tb_increment_user_account.account_type
+        order by tb_increment_user_account.update_date desc
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+    <!--增值持有查询count方法-->
+    <select id="selectUserValueAddCount" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        tb_increment_user,
+        tb_increment_user_account
+        <include refid="UserValueAdd"></include>
+    </select>
+
+
+    <!--    增值奖励查询-->
+    <select id="selectValueAddRewardList" resultMap="userMap">
+        SELECT
+        tb_increment_reward.statistics_date,
+        tb_increment_user.user_name,
+        tb_increment_user.user_mobile,
+        tb_increment_user.user_email,
+        tb_increment_user.user_channel_id,
+        tb_increment_user.ent_name,
+        tb_increment_user_account.account_type,
+        tb_increment_reward.add_amount,
+        tb_increment_user_account.increment_amount,
+        tb_increment_reward.annualized_rate,
+        tb_increment_reward.reward_amount,
+        tb_increment_user_account.reward_amount,
+        tb_increment_reward.order_id,
+        tb_increment_order.order_state,
+        tb_increment_reward.create_date
+        FROM
+        tb_increment_reward,
+        tb_increment_user,
+        tb_increment_order,
+        tb_increment_user_account
+        <include refid="ValueAddReward"></include>
+        ORDER BY
+        tb_increment_reward.create_date DESC
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+    <!--    增值奖励查询 count-->
+    <select id="selectValueAddRewardCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        tb_increment_reward,
+        tb_increment_user,
+        tb_increment_order,
+        tb_increment_user_account
+        <include refid="ValueAddReward"></include>
+    </select>
+
+
+    <!--    奖励订单查询-->
+    <select id="selectAwardingOrderList" resultMap="userMap">
+        SELECT
+        tb_increment_order.order_id,
+        tb_increment_order.ext_order_id,
+        tb_increment_user.user_name,
+        tb_increment_user.user_mobile,
+        tb_increment_user.user_email,
+        tb_increment_user.user_channel_id,
+        tb_increment_user.ent_name,
+        tb_increment_order.salary_reward_amount,
+        tb_increment_order.benefit_reward_amount,
+        tb_increment_order.cash_reward_amount,
+        tb_increment_order.total_reward_amount,
+        tb_increment_order.total_reward_amount AS 'fudou',
+        tb_increment_order.order_state,
+        tb_increment_order.statistics_date,
+        tb_increment_order.update_date,
+        tb_increment_order.create_date,
+        tb_increment_order.complate_date
+        FROM
+        tb_increment_user,
+        tb_increment_order
+        <include refid="AwardingOrder"></include>
+        order by tb_increment_order.complate_date desc
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+    <!--    奖励订单查询count-->
+    <select id="selectAwardingOrderCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        tb_increment_user,
+        tb_increment_order
+        <include refid="AwardingOrder"></include>
+    </select>
+
+
+</mapper>

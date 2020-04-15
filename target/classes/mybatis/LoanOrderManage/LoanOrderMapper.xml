@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.ULoan.dao.LoanOrderDao">
+        
+        <select id="findLoanOrderByCondition" parameterType="map" resultType="com.bootdo.ULoan.domain.LoanOrder">
+
+			select
+			tl.LOAN_ORDER_NO as  'loanOrderNo' ,
+			tu.COMPANY_ID     as 'companyId',
+			tu.COMPANY_NAME as  'companyName',
+			ti.REALNAME as  'realName',
+			tu.EMAIL as  'email',
+			tu.MOBILE as  'mobile',
+			tl.ORDER_TYPE  as 'orderType',
+			tl.PERIOD_SUM as  'preiodSum',
+			tl.REFUND as  'refund',
+			'0'  as  'refundAmountSum',
+			tl.PENDING_REFUND as  'pendingRefund',
+			'0'  as  'refundDiAmountSum',
+			tl.REPAY_STATE as  'repayState',
+			tl.ORDER_STATE  as  'orderState',
+			tl.CHANNEL_NO  as  'channelNo',
+			tl.GRANT_TIME as  'grantTime',
+			tl.CREATE_TIME as  'createTime',
+			tl.FULL_REPAYMENT_TIME  as 'fullrepaymentTime',
+			case when tl.AMOUNT IS NULL then (select sum(CAST(tp.NOW_AMOUNT as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO ) else tl.AMOUNT end as 'nowAmountSum'
+			from  TB_USER tu,TB_LOAN_ORDER tl,TB_ACCOUNT_INFO ti
+			where tu.USER_ID=tl.USER_ID AND tl.ACCOUNT_NO = ti.ACCOUNT_NO
+			and  tl.ORDER_TYPE !='05'
+			<if test="loanOrderNo!=null and loanOrderNo!='' ">
+				and tl.LOAN_ORDER_NO like #{loanOrderNo}
+			</if>
+			 <if test="realName!=null and realName!='' ">
+				and ti.REALNAME like #{realName}
+			</if>
+			 <if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			 <if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			 <if test="orderType!=null and orderType!='' ">
+				and tl.ORDER_TYPE = #{orderType}
+			</if>
+			 <if test="refund!=null and refund!='' ">
+				and tl.REFUND = #{refund}
+			</if>
+			 <if test="pendingRefund!=null and pendingRefund!='' ">
+				and tl.PENDING_REFUND = #{pendingRefund}
+			</if>
+			 <if test="repayState!=null and repayState!='' ">
+				and tl.REPAY_STATE = #{repayState}
+			</if>
+			 <if test="orderState!=null and orderState!='' ">
+				and tl.ORDER_STATE = #{orderState}
+			</if>
+			 <if test="channelNo!=null and channelNo!='' ">
+				and tl.CHANNEL_NO like #{channelNo}
+			</if>
+			 <if test="startTime!=null and startTime!='' ">
+				  
+				<![CDATA[ and tl.GRANT_TIME >= #{startTime} ]]>
+			</if>
+			 <if test="endTime!=null and endTime!='' ">
+			 	<![CDATA[ and tl.GRANT_TIME <= #{endTime} ]]>
+				
+			</if>
+			<if test="createTimeStart!=null and createTimeStart!='' ">
+				<![CDATA[ and tl.CREATE_TIME >= #{createTimeStart} ]]>
+			</if>
+			<if test="createTimeEnd!=null and createTimeEnd!='' ">
+				<![CDATA[ and tl.CREATE_TIME <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+			</if>
+		       ORDER BY  tl.GRANT_TIME DESC
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+        </select>
+
+	<select id="findLoanOrderByConditionN" parameterType="map" resultType="java.util.HashMap">
+
+		select
+		tl.LOAN_ORDER_NO as  'loanOrderNo' ,
+		tu.COMPANY_ID     as 'companyId',
+		tu.COMPANY_NAME as  'companyName',
+		ti.REALNAME as  'realName',
+		tu.EMAIL as  'email',
+		tu.MOBILE as  'mobile',
+		tl.PERIOD_SUM as  'preiodSum',
+		tl.REFUND as  'refund',
+		'0'  as  'refundAmountSum',
+		IFNULL(tl.DISCOUNTS, 0.00) as  'disCounts',
+		tl.PENDING_REFUND as  'pendingRefund',
+		'0'  as  'refundDiAmountSum',
+		tl.CHANNEL_NO  as  'channelNo',
+		tl.GRANT_TIME as  'grantTime',
+		tl.CREATE_TIME as  'createTime',
+		IFNULL(tl.FULL_REPAYMENT_TIME, '')  as 'fullrepaymentTime',
+		case when tl.AMOUNT IS NULL then (select sum(CAST(tp.NOW_AMOUNT as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO ) else tl.AMOUNT end as 'nowAmountSum',
+		IFNULL(tl.BANK, '') as 'bank',
+		IFNULL(tl.CARD_NO, '') as 'cardNo',
+		IFNULL(tl.ERROR_MSG, '') as 'errorMsg',
+		case when tl.AMOUNT IS NULL then (select sum(CAST(tp.NOW_AMOUNT as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO ) else tl.AMOUNT end as 'nowAmountSum',
+		case when tl.VIP_LEVEL IS NOT NULL then concat('VIP',tl.VIP_LEVEL) else tl.VIP_LEVEL end as 'vipLevel',
+		case when tu.USER_CHANNEL_ID = '01' then '嘉福平台' when tu.USER_CHANNEL_ID = '02' then '嘉薪平台' else tu.USER_CHANNEL_ID end as channel,
+		case when tl.ORDER_TYPE = '01' then '消费分期' when tl.ORDER_TYPE = '02' then '现金分期' when tl.ORDER_TYPE = '03' then '信用卡分期' when tl.ORDER_TYPE = '04' then '员工专享' else tl.ORDER_TYPE end as orderType,
+		case when tl.REPAY_STATE = '01' then '待还款' when tl.REPAY_STATE = '02' then '还款中' when tl.REPAY_STATE = '03' then '已还清' else '' end as repayState,
+		case when tl.ORDER_STATE = '01' then '处理中' when tl.ORDER_STATE = '02' then '成功' when tl.ORDER_STATE = '03' then '失败' when tl.ORDER_STATE = '04' then '部分退款' when tl.ORDER_STATE = '05' then '全部退款' else '' end as orderState
+		from  TB_USER tu,TB_LOAN_ORDER tl,TB_ACCOUNT_INFO ti
+		where tu.USER_ID=tl.USER_ID AND tl.ACCOUNT_NO = ti.ACCOUNT_NO
+		and  tl.ORDER_TYPE !='05'
+		<if test="loanOrderNo!=null and loanOrderNo!='' ">
+			and tl.LOAN_ORDER_NO like #{loanOrderNo}
+		</if>
+		<if test="realName!=null and realName!='' ">
+			and ti.REALNAME like #{realName}
+		</if>
+		<if test="email!=null and email!='' ">
+			and tu.EMAIL like #{email}
+		</if>
+		<if test="mobile!=null and mobile!='' ">
+			and tu.MOBILE like #{mobile}
+		</if>
+		<if test="orderType!=null and orderType!='' ">
+			and tl.ORDER_TYPE = #{orderType}
+		</if>
+		<if test="refund!=null and refund!='' ">
+			and tl.REFUND = #{refund}
+		</if>
+		<if test="pendingRefund!=null and pendingRefund!='' ">
+			and tl.PENDING_REFUND = #{pendingRefund}
+		</if>
+		<if test="repayState!=null and repayState!='' ">
+			and tl.REPAY_STATE = #{repayState}
+		</if>
+		<if test="orderState!=null and orderState!='' ">
+			and tl.ORDER_STATE = #{orderState}
+		</if>
+		<if test="channelNo!=null and channelNo!='' ">
+			and tl.CHANNEL_NO like #{channelNo}
+		</if>
+		<if test="startTime!=null and startTime!='' ">
+
+			<![CDATA[ and tl.GRANT_TIME >= #{startTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and tl.GRANT_TIME <= #{endTime} ]]>
+
+		</if>
+		<if test="createTimeStart!=null and createTimeStart!='' ">
+
+			<![CDATA[ and tl.CREATE_TIME >= #{createTimeStart} ]]>
+		</if>
+		<if test="createTimeEnd!=null and createTimeEnd!='' ">
+			<![CDATA[ and tl.CREATE_TIME <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+
+		</if>
+		ORDER BY  tl.GRANT_TIME DESC
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+       
+           <select id="findLoanOrderCountByCondition" parameterType="map" resultType="Long">
+			   select
+			   count(*)
+			   from  TB_USER tu,TB_LOAN_ORDER tl,TB_ACCOUNT_INFO ti
+			   where tu.USER_ID=tl.USER_ID AND tl.ACCOUNT_NO = ti.ACCOUNT_NO
+			<if test="loanOrderNo!=null and loanOrderNo!='' ">
+				and tl.LOAN_ORDER_NO like #{loanOrderNo}
+			</if>
+			 <if test="realName!=null and realName!='' ">
+				and ti.REALNAME like #{realName}
+			</if>
+			 <if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			 <if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			 <if test="orderType!=null and orderType!='' ">
+				and tl.ORDER_TYPE = #{orderType}
+			</if>
+			 <if test="refund!=null and refund!='' ">
+				and tl.REFUND = #{refund}
+			</if>
+			 <if test="pendingRefund!=null and pendingRefund!='' ">
+				and tl.PENDING_REFUND = #{pendingRefund}
+			</if>
+			 <if test="repayState!=null and repayState!='' ">
+				and tl.REPAY_STATE = #{repayState}
+			</if>
+			 <if test="orderState!=null and orderState!='' ">
+				and tl.ORDER_STATE = #{orderState}
+			</if>
+			 <if test="channelNo!=null and channelNo!='' ">
+				and tl.CHANNEL_NO like #{channelNo}
+			</if>
+			 <if test="startTime!=null and startTime!='' ">
+				
+				<![CDATA[ and tl.GRANT_TIME >= #{startTime} ]]>
+			</if>
+			 <if test="endTime!=null and endTime!='' ">
+			 	<![CDATA[ and tl.GRANT_TIME <= #{endTime} ]]>
+				
+			</if>
+			<if test="createTimeStart!=null and createTimeStart!='' ">
+
+				<![CDATA[ and tl.CREATE_TIME >= #{createTimeStart} ]]>
+			</if>
+			<if test="createTimeEnd!=null and createTimeEnd!='' ">
+				<![CDATA[ and tl.CREATE_TIME <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+			</if>
+
+        </select>
+        
+        
+        
+ 
+        
+        
+         <select  id="getOverDueFlowByRepayPlanNo" parameterType="map" resultType="com.bootdo.Cdomain.domain.OverdueFlow">
+         	 select 
+         	      REPAY_PLAN_NO   as "repayPlanNo",
+         	      COST_TYPE       as "costType",
+         	      OVERDUE_COST    as "overdueCost",
+         	      CREATE_TIME     as "createTime"
+         	  from TB_OVERDUE_FLOW where REPAY_PLAN_NO  in (select  REPAY_PLAN_NO  from  TB_REPAY_PLAN  where LOAN_ORDER_NO=#{loanOrderNo})
+                <if test="start!=null and size!=null">
+			      limit #{start},#{size}
+	        </if>   
+      
+         </select>
+
+          <select  id="getOverDueFlowByRepayPlanNoCount" parameterType="map" resultType="Long">
+         	 select 
+         	     count(*)
+         	  from TB_OVERDUE_FLOW where REPAY_PLAN_NO  in (select  REPAY_PLAN_NO  from  TB_REPAY_PLAN  where LOAN_ORDER_NO=#{loanOrderNo})
+               
+      
+         </select>
+		<select  id="findLoanOrderAndLoanPepayPlan" resultType="com.bootdo.ULoan.domain.LoanOrder">
+			select
+			case when tl.ORDER_TYPE = '02' then (select sum(CAST(tp.NOW_AMOUNT as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO ) when tl.ORDER_TYPE = '03' then tl.AMOUNT end as 'nowAmountSum',
+			(select sum(CAST(tp.NOW_ORDER_INTEREST as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO ) as  'nowOrderInterestSum',
+			(select sum(CAST(tp.NOW_INTEREST as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO )as  'nowInterestSum',
+			(select sum(CAST(tp.NOW_OVERDUE as DECIMAL(30,2)))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO )as  'nowOverdueSum',
+			(select SUM((CAST(tp.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(tp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(tp.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(tp.NOW_READY_OVERDUE as DECIMAL(30,2))))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO)
+
+			as  'readyAmountSum',
+			(select SUM(((CAST(tp.NOW_AMOUNT as DECIMAL(30,2))+CAST(tp.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(tp.NOW_INTEREST as DECIMAL(30,2))+CAST(tp.NOW_OVERDUE as DECIMAL(30,2))) - (CAST(tp.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(tp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(tp.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(tp.NOW_READY_OVERDUE as DECIMAL(30,2)))))  from TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO )
+			as  'repaymentAmountSum',
+
+			(select  PERIOD_RATE  from  TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO limit 0,1) as 'periodRate',
+			(select  TRANSFER_COST  from  TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO limit 0,1) as 'transferCost',
+			(select  TRANSFER_RATE  from  TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO limit 0,1) as 'transferRate',
+			(select  OVERDUE_MANAGE_RATE  from    TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO limit 0,1) as 'overdueManageRate',
+			(select  OVERDUE_DAY_RATE   from  TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO limit 0,1) as 'overdueDayRate',
+
+			(select  tp.LATEST_TIME   from  TB_REPAY_PLAN  tp where tp.LOAN_ORDER_NO=tl.LOAN_ORDER_NO ORDER BY tp.LATEST_TIME DESC limit 0,1) as 'latestTime'
+			from   TB_USER tu,TB_ACT_TRADING_FLOW tf,TB_LOAN_ORDER tl
+			where tu.USER_ID=tf.USER_ID  and tf.BIZID=tl.LOAN_ORDER_NO
+			<if test="loanOrderNo!=null and loanOrderNo!='' ">
+				and tl.LOAN_ORDER_NO like #{loanOrderNo}
+			</if>
+			<if test="realName!=null and realName!='' ">
+				and tu.REALNAME like #{realName}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			<if test="orderType!=null and orderType!='' ">
+				and tl.ORDER_TYPE = #{orderType}
+			</if>
+			<if test="refund!=null and refund!='' ">
+				and tl.REFUND = #{refund}
+			</if>
+			<if test="pendingRefund!=null and pendingRefund!='' ">
+				and tl.PENDING_REFUND = #{pendingRefund}
+			</if>
+			<if test="repayState!=null and repayState!='' ">
+				and tl.REPAY_STATE = #{repayState}
+			</if>
+			<if test="orderState!=null and orderState!='' ">
+				and tl.ORDER_STATE = #{orderState}
+			</if>
+			<if test="channelNo!=null and channelNo!='' ">
+				and tl.CHANNEL_NO like #{channelNo}
+			</if>
+			<if test="startTime!=null and startTime!='' ">
+
+				<![CDATA[ and tl.GRANT_TIME >= #{startTime} ]]>
+			</if>
+			<if test="endTime!=null and endTime!='' ">
+				<![CDATA[ and tl.GRANT_TIME <= #{endTime} ]]>
+
+			</if>
+
+			ORDER BY  tl.GRANT_TIME DESC
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+		</select>
+
+			 
+</mapper> 

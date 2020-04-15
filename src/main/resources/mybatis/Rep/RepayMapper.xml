@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.Repayment.dao.IRepayDao">
+
+	<select id="list" parameterType="java.lang.String" resultType="com.bootdo.Repayment.domain.Act">
+		SELECT
+		e.repay_num as repaynum,
+		e.c_flow as cflow,
+		e.loan_num as loannum,
+		e.r_amount as ramount,
+		e.r_proc_cost as rproccost,
+		(CAST(e.r_amount as DECIMAL(30,2))+CAST(e.r_proc_cost as DECIMAL(30,2))+CAST(e.r_over_cost as DECIMAL(30,2))) as stayamountsum,
+		e.r_over_cost as rovercost,
+		e.account_no as accountno,
+		e.repay_type as repaytype,
+		e.repay_date as repaydate,
+		e.repay_state as repaystate,
+	  	c.e_id as eid,
+		te.c_e_id as ceid,
+		te.e_name as ename
+		FROM t_repay_order e,t_act_account c,t_enterprise te
+		where
+		c.account_no=e.account_no
+		and c.e_id = te.e_id and e.repay_state = '1'
+		<if test="repaynum != null and  repaynum !=''">
+			and  e.repay_num like #{repaynum}
+		</if>
+		<if test="cflow != null and  cflow !=''">
+			and  e.c_flow like #{cflow}
+		</if>
+		<if test="loannum != null and  loannum !=''">
+			and  e.loan_num like #{loannum}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.repay_date >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.repay_date <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+		order by e.repay_num desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from t_repay_order e,t_act_account c,t_enterprise te
+		where
+		c.account_no=e.account_no
+		and c.e_id = te.e_id and e.repay_state = '1'
+		<if test="repaynum != null and  repaynum !=''">
+			and  e.repay_num like #{repaynum}
+		</if>
+		<if test="cflow != null and  cflow !=''">
+			and  e.c_flow like #{cflow}
+		</if>
+		<if test="loannum != null and  loannum !=''">
+			and  e.loan_num like #{loannum}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.repay_date >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.repay_date <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+	</select>
+
+	<!--下载-->
+
+	<select id="ReExcel" resultType="java.util.HashMap">
+		SELECT
+		e.repay_num as repaynum,
+		e.c_flow as cflow,
+		e.loan_num as loannum,
+		e.r_amount as ramount,
+		e.r_proc_cost as rproccost,
+		e.stay_amount_sum as stayamountsum,
+		e.r_over_cost as rovercost,
+		e.account_no as accountno,
+		e.repay_type as repaytype,
+		e.repay_date as repaydate,
+		e.repay_state as repaystate,
+		c.e_id as eid,
+		te.c_e_id as ceid,
+		te.e_name as ename,
+		te.channel as channel
+		FROM t_repay_order e,t_act_account c,t_enterprise te
+		where
+		c.account_no=e.account_no
+		and c.e_id = te.e_id
+		<if test="repaynum != null and  repaynum !=''">
+			and  e.repay_num like #{repaynum}
+		</if>
+		<if test="cflow != null and  cflow !=''">
+			and  e.c_flow like #{cflow}
+		</if>
+		<if test="loannum != null and  loannum !=''">
+			and  e.loan_num like #{loannum}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.repay_date >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.repay_date <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+		order by e.repay_num desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bootdo.RefundOrder.dao.RefundOrderDao">
+
+    <select id="findRefundOrderList" parameterType="Map" resultType="com.bootdo.RefundOrder.domain.RefundOrderEntity">
+        select t.REFUND_ORDER_NO  as refundOrderNo,
+        tb.COMPANY_NAME as companyName,
+        ta.REALNAME  as realName,
+        tb.MOBILE  as mobile,
+        t.LOAN_ORDER_NO as loanOrderNo,
+        t.EXT_REF_ORDER_ID as extRefOrderId,
+        t.REFUND_AMOUNT  as refundAmount,
+        t.OFFSET_AMOUNT  as offsetAmount,
+        t.RECHARGE_AMOUNT  as rechargeAmount,
+        t.RECHARGE_ORDER_TID as rechargeOrderTid,
+        t.TOTAL_REFUND_AMOUNT as totalRefundAmount,
+        t.REFUND_STATE  as refundState,
+        t.CREATE_DATE  as createDate
+        from
+        TB_CONSUME_REFUND_ORDER t
+        LEFT JOIN TB_ACCOUNT_INFO ta ON t.ACCOUNT_NO = ta.ACCOUNT_NO
+        LEFT JOIN  TB_USER tb ON ta.USER_ID = tb.USER_ID
+        where 1=1
+        <if test="loanOrderNo!=null and loanOrderNo!='' ">
+            and t.LOAN_ORDER_NO like #{loanOrderNo}
+        </if>
+        <if test="extRefOrderId!=null and extRefOrderId!='' ">
+            and t.EXT_REF_ORDER_ID like #{extRefOrderId}
+        </if>
+        <if test="refundOrderNo!=null and refundOrderNo!='' ">
+            and t.REFUND_ORDER_NO like #{refundOrderNo}
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!='' ">
+            <![CDATA[ and t.CREATE_DATE >= #{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!='' ">
+            <![CDATA[ and t.CREATE_DATE <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+        </if>
+        ORDER BY t.CREATE_DATE DESC
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+
+    <select id="countRefundOrder" parameterType="Map" resultType="java.lang.Integer">
+        select
+        count(*)
+        from
+        TB_CONSUME_REFUND_ORDER t
+        LEFT JOIN TB_ACCOUNT_INFO ta ON t.ACCOUNT_NO = ta.ACCOUNT_NO
+        LEFT JOIN TB_USER tb ON ta.USER_ID = tb.USER_ID
+        where 1=1
+        <if test="loanOrderNo!=null and loanOrderNo!='' ">
+            and t.LOAN_ORDER_NO like #{loanOrderNo}
+        </if>
+        <if test="extRefOrderId!=null and extRefOrderId!='' ">
+            and t.EXT_REF_ORDER_ID like #{extRefOrderId}
+        </if>
+        <if test="refundOrderNo!=null and refundOrderNo!='' ">
+            and t.REFUND_ORDER_NO like #{refundOrderNo}
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!='' ">
+            <![CDATA[ and t.CREATE_DATE >= #{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!='' ">
+            <![CDATA[ and t.CREATE_DATE <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+        </if>
+
+    </select>
+
+    <select id="findRefundOrderListN" parameterType="Map" resultType="java.util.HashMap">
+        select t.REFUND_ORDER_NO  as refundOrderNo,
+        tb.COMPANY_NAME as companyName,
+        ta.REALNAME  as realName,
+        tb.MOBILE  as mobile,
+        t.LOAN_ORDER_NO as loanOrderNo,
+        t.EXT_REF_ORDER_ID as extRefOrderId,
+        t.REFUND_AMOUNT  as refundAmount,
+        t.OFFSET_AMOUNT  as offsetAmount,
+        t.RECHARGE_AMOUNT  as rechargeAmount,
+        t.TOTAL_REFUND_AMOUNT as totalRefundAmount,
+        t.RECHARGE_ORDER_TID as rechargeOrderTid,
+        case when t.REFUND_STATE = '01' then '处理中' when t.REFUND_STATE = '02' then '成功' when t.REFUND_STATE = '03' then '失败' else '' end as refundState,
+        t.CREATE_DATE  as createDate
+        from
+        TB_CONSUME_REFUND_ORDER t
+        LEFT JOIN TB_ACCOUNT_INFO ta ON t.ACCOUNT_NO = ta.ACCOUNT_NO
+        LEFT JOIN  TB_USER tb ON ta.USER_ID = tb.USER_ID
+        where 1=1
+        <if test="loanOrderNo!=null and loanOrderNo!='' ">
+            and t.LOAN_ORDER_NO like #{loanOrderNo}
+        </if>
+        <if test="extRefOrderId!=null and extRefOrderId!='' ">
+            and t.EXT_REF_ORDER_ID like #{extRefOrderId}
+        </if>
+        <if test="refundOrderNo!=null and refundOrderNo!='' ">
+            and t.REFUND_ORDER_NO like #{refundOrderNo}
+        </if>
+        <if test="createTimeStart!=null and createTimeStart!='' ">
+            <![CDATA[ and t.CREATE_DATE >= #{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!='' ">
+            <![CDATA[ and t.CREATE_DATE <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+        </if>
+        ORDER BY t.CREATE_DATE DESC
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+</mapper>

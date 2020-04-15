@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/js/plugins/layer/laydate/skins/default/laydate.css"/>
+</head>
+<style>
+    .margin {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .aler {
+        display: none;
+        border: 1px solid #ababab;
+        position: fixed;
+        top: 30%;
+        left: 25%;
+        z-index: 5;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #4a4a4a;
+        color: white;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .justify1 {
+        display: inline-block;
+        width: 100px;
+        text-align: justify;
+    }
+
+    .justify1 + span {
+        margin: 0px 10px;
+    }
+
+    .justify1:after {
+        content: "";
+        padding-left: 100%;
+        display: inline-block;
+    }
+
+    .distance {
+        height: 44px;
+    }
+</style>
+<body class="gray-bg" style="background-color: #f8f8f8;color:black;font-size:16px;">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-body">
+                    <!--begin-->
+                    <form action="#" autocomplete="off">
+                        <input type="hidden" id="repayPlanNo" th:value="${repayPlanNo}"/>
+                        <input type="hidden" id="appNo" th:value="${shouldPay.appNo}"/>
+                        <input type="hidden" id="lastPayDay" th:value="${data.lastPayDay}"/>
+                        <input type="hidden" id="init" th:value="${data.init}"/>
+                        <input type="hidden" id="nowoverdueFee" th:value="${shouldPay.nowoverdueFee}"/>
+                        <table class="table text-nowrap table-bordered table-striped">
+                            <tr>
+                                <td colspan="6" style="font-size: 16px;font-weight: 600;">
+                                    该笔为&nbsp;<span th:text="${data.uname}"></span>，
+                                    第&nbsp; <span th:text="${data.rank}"></span>&nbsp;笔待还款，
+                                    剩余待还&nbsp;  <span th:text="${data.remaMoney}"></span>&nbsp;元，
+                                    该人总剩余待还&nbsp; <span th:text="${data.countNum}"></span>&nbsp;笔，
+                                    <span th:text="${data.totalMoney}"></span>&nbsp;元
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>当期应还本金</td>
+                                <td>当期应还服务费</td>
+                                <td>当期应还逾期费用</td>
+                                <td>当期已还金额</td>
+                                <td>当期剩余待还金额</td>
+                                <td>申请减免金额</td>
+                            </tr>
+                            <tr style="text-align: left">
+                                <td th:text="${shouldPay.shouldMoney}"></td>
+                                <td th:text="${shouldPay.shouldFee}"></td>
+                                <td th:text="${shouldPay.overdueFee}" id="overdueFee"></td>
+                                <td th:text="${shouldPay.alreadyPaid}"></td>
+                                <td th:text="${shouldPay.returnMoney}"></td>
+                                <td th:text="${shouldPay.appShouldMoney}"></td>
+                            </tr>
+                            <tr style="text-align: left">
+                                <td>申请减免金额：<span style="color: red">*</span></td>
+                                <td colspan="2">
+                                    <input type="number" required class="form-control" min="0.01" step="0.01" th:value="${shouldPay.appShouldMoney}"  id="appmoney" style=""/>
+                                </td>
+                                <td colspan="3">
+                                    <span id="message">（小于等于当期逾期费用&nbsp;<span th:text="${shouldPay.overdueFee}"></span>&nbsp;元）</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>约定还款日：<span style="color: red">*</span></td>
+                                <td colspan="2">
+                                    <input type="text" class="laydate-icon layer-date form-control"
+                                           id="latestTimeEnd" th:value="${shouldPay.makeLastTime}"
+                                           name="birth" required
+                                           onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"
+                                           style="background-color: #fff;" readonly="readonly"
+                                           placeholder="约定还款日"/>
+                                </td>
+                                <td colspan="3"></td>
+                            </tr>
+                            <tr style="text-align: left">
+                                <td>减免原因：<span style="color: red">*</span></td>
+                                <td colspan="5"><textarea class="form-control" id="reson" th:text="${shouldPay.oriReason}" required style="height: 100px;resize:none"></textarea></td>
+                            </tr>
+                            <tr style="text-align: left;display: none" id="appPerson">
+                                <td>申请人：</td>
+                                <td colspan="5"><input type="text" class="form-control" readonly="readonly" th:value="${shouldPay.applicant}"/></td>
+                            </tr>
+                            <tr style="text-align: left;display: none" id="appTime">
+                                <td>申请时间：</td>
+                                <td colspan="5"><input type="text" class="form-control" readonly="readonly" th:value="${shouldPay.createTime}"/></td>
+                            </tr>
+                        </table>
+                    </form>
+                    <div class="gg-btnGroup" style="display: none" id="refuseDiv">
+                        <button type="button" style="float: right;" class="btn btn-sm btn-danger" id="refuse">拒绝</button>
+                    </div>
+                    <div class="gg-btnGroup">
+                        <button type="button" style="float: right;margin-right: 50px;"  onclick="layer.close(layer.index); window.parent.location.reload()"  class="btn btn-sm btn-warning" id="cancel" >取消</button>
+                    </div>
+                    <div class="gg-btnGroup">
+                        <button type="button" style="float: right;margin-right: 50px;" class="btn btn-sm btn-primary" id="submmit"><span th:text="${data.init == '1' ? '提交' : '通过'}"></span></button>
+                    </div>
+
+                    <div class="aler">
+                    </div>
+                    <!--end-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <script type="text/javascript">
+            var s_edit_h = 'hidden';
+            var s_remove_h = 'hidden';
+            var s_resetPwd_h = 'hidden';
+        </script>
+    </div>
+    <div shiro:hasPermission="sys:userN:edit">
+        <script type="text/javascript">
+            s_edit_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="sys:userN:remove">
+        <script type="text/javascript">
+            var s_remove_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="sys:userN:resetPwd">
+        <script type="text/javascript">
+            var s_resetPwd_h = '';
+        </script>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" src="/js/appjs/AfterLoanAccount/FeeReduction.js"></script>
+<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js"></script>
+<script type="text/javascript" src="../../static/js/layui.js"></script>
+<script>
+    $(function () {
+    });
+
+    function onKeyDown(event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 13) {
+            reLoad();
+        }
+    }
+</script>
+</body>
+</html>

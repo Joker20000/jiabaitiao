@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.AfterLoanAccount.dao.FeeReductionDao">
+
+    <select id="searchFeeReductionRecord" resultType="java.util.HashMap">
+      SELECT tfwr.* FROM TB_FEE_WAIVER_RECORD tfwr WHERE tfwr.APPROVAL_STATE = #{state} AND tfwr.REPAY_PLAN_NO = #{repayPlanNo} LIMIT 1
+    </select>
+
+    <update id="modifyRepayLastTimeByRepayPlanNo" parameterType="java.util.HashMap">
+      UPDATE TB_REPAY_PLAN SET LATEST_TIME = #{makeTime}, NOW_OVERDUE = #{afterFee} , REDUCTION = '1' WHERE REPAY_PLAN_NO = #{repayPlanNo}
+    </update>
+
+    <update id="modifyFeeReductionByappNo" parameterType="java.util.HashMap">
+      UPDATE TB_FEE_WAIVER_RECORD SET APPROVAL_STATE = #{state}, APPROVER = #{checkUserName}, APPROVER_ID = #{checkUserId}, APPROVAL_TIME = NOW() WHERE  APPLICATION_NO = #{appNo}
+    </update>
+
+    <insert id="addFeeReductionRecord" parameterType="java.util.HashMap">
+        INSERT INTO TB_FEE_WAIVER_RECORD (
+        APPLICATION_NO,
+        REPAY_PLAN_NO,
+        ORIGINAL_LATEST_TIME,
+        MAKE_LATEST_TIME,
+        ORIGINAL_OVERDUE,
+        WAIVER_AMOUNT,
+        AFTER_REDUCTIONFEE,
+        APPLICANT,
+        APPLICANT_ID,
+        <!--APPROVER,-->
+        <!--APPROVER_ID,-->
+        <!--APPROVAL_TIME,-->
+        ORIGINAL_REASON,
+        APPROVAL_STATE,
+        CREATE_TIME
+        )
+        VALUES (#{appNo}, #{repayPlanNo}, #{originalTime}, #{makeTime}, #{originalOverdue}, #{waivarAmt}, #{afterFee},
+          #{applicant}, #{applicantId},  #{reason}, #{approvalState}, now())
+    </insert>
+
+    <select id="getFeeReductionList" resultType="com.bootdo.AfterLoanAccount.domain.FeeReduction">
+        SELECT
+        tai.REALNAME as realName,
+        tu.MOBILE as tel,
+        tai.ACCOUNT_NO as accountNo,
+        tf.APPLICATION_NO as appNo,
+        tf.REPAY_PLAN_NO as repayPlanNo,
+        tf.ORIGINAL_LATEST_TIME as oriLastTime,
+        tf.MAKE_LATEST_TIME as makeLastTime,
+        tf.ORIGINAL_OVERDUE as oriOverdue,
+        tf.WAIVER_AMOUNT as waiverAmt,
+        tf.AFTER_REDUCTIONFEE as agterReduFee,
+        tf.APPLICANT as applicant,
+        tf.APPLICANT_ID as applicantId,
+        tf.APPROVER as approver,
+        tf.APPROVER_ID as approverId,
+        tf.APPROVAL_TIME as approvalTime,
+        tf.ORIGINAL_REASON as oriReason,
+        tf.APPROVAL_STATE as approvalState,
+        tf.CREATE_TIME as createTime
+        FROM TB_FEE_WAIVER_RECORD tf
+        INNER JOIN TB_REPAY_PLAN tp
+        ON tp.REPAY_PLAN_NO = tf.REPAY_PLAN_NO
+        INNER JOIN TB_LOAN_ORDER tlo
+        ON tlo.LOAN_ORDER_NO = tp.LOAN_ORDER_NO
+        INNER JOIN TB_ACCOUNT_INFO tai
+        ON tai.ACCOUNT_NO = tlo.ACCOUNT_NO
+        INNER JOIN TB_USER tu
+        ON tu.USER_ID = tai.USER_ID
+        WHERE 1=1
+         <if test="null != repayPlanNo and '' != repayPlanNo">
+             AND tf.REPAY_PLAN_NO = #{repayPlanNo}
+         </if>
+        <if test="null != tel and '' != tel">
+            AND tu.MOBILE = #{tel}
+        </if>
+        <if test="null != appRovalState and '' != appRovalState">
+            AND tf.APPROVAL_STATE = #{appRovalState}
+        </if>
+        ORDER BY tf.CREATE_TIME
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="getFeeReductionTotalPage" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM TB_FEE_WAIVER_RECORD tf
+        INNER JOIN TB_REPAY_PLAN tp
+        ON tp.REPAY_PLAN_NO = tf.REPAY_PLAN_NO
+        INNER JOIN TB_LOAN_ORDER tlo
+        ON tlo.LOAN_ORDER_NO = tp.LOAN_ORDER_NO
+        INNER JOIN TB_ACCOUNT_INFO tai
+        ON tai.ACCOUNT_NO = tlo.ACCOUNT_NO
+        INNER JOIN TB_USER tu
+        ON tu.USER_ID = tai.USER_ID
+        WHERE 1=1
+        <if test="null != repayPlanNo and '' != repayPlanNo">
+            AND tf.REPAY_PLAN_NO = #{repayPlanNo}
+        </if>
+        <if test="null != tel and '' != tel">
+            AND tu.MOBILE = #{tel}
+        </if>
+        <if test="null != appRovalState and '' != appRovalState">
+            AND tf.APPROVAL_STATE = #{appRovalState}
+        </if>
+    </select>
+
+    <!--费用减免详情-->
+    <!--查询该还款计划，当期应还本金（shouldMoney）、当期应还服务费（shouldFee）、当期逾期费用（nowoverdueFee）、当期应还逾期费用（overdueFee）、当期已还金额（alreadyPaid）、当期剩余待还金额（returnMoney）-->
+    <select id="getFeeRuctionDetail" resultType="java.util.HashMap">
+         SELECT
+        rp.NOW_AMOUNT as shouldMoney,
+        tf.APPLICATION_NO as appNo,
+        (SELECT tpl.LATEST_TIME FROM TB_REPAY_PLAN tpl WHERE tpl.REPAY_PLAN_NO = #{repayPlanNo}) as lastPayDay,
+        CAST(rp.NOW_OVERDUE as DECIMAL(30,2)) as nowoverdueFee,
+        rp.NOW_INTEREST as shouldFee, CAST(rp.NOW_OVERDUE as DECIMAL(30,2))- (CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2))) as overdueFee,
+        (CAST(rp.NOW_READY_AMOUNT as DECIMAL(30,2)) + CAST(rp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2))) as alreadyPaid,
+        SUM((CAST(rp.NOW_AMOUNT as DECIMAL(30,2)) + CAST(rp.NOW_ORDER_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_OVERDUE as DECIMAL(30,2)))
+        - (CAST(rp.NOW_READY_AMOUNT as DECIMAL(30,2)) + CAST(rp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2)))) as returnMoney,
+        tf.WAIVER_AMOUNT as appShouldMoney,
+        tf.MAKE_LATEST_TIME as makeLastTime,
+        tf.ORIGINAL_REASON as oriReason,
+        tf.APPLICANT as applicant,
+        tf.CREATE_TIME as createTime
+        FROM TB_REPAY_PLAN rp
+        INNER JOIN TB_FEE_WAIVER_RECORD tf
+        ON tf.REPAY_PLAN_NO = rp.REPAY_PLAN_NO
+        WHERE tf.APPLICATION_NO = #{appNo}
+    </select>
+</mapper>

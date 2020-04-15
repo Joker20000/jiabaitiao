@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.increment.dao.UserTransactionDao">
+    <resultMap id="userTran" type="com.bootdo.increment.domain.TbIncrementUser">
+        <id column="user_id" property="userId"></id>
+        <result column="user_name" property="userName"></result>
+        <result column="user_mobile" property="userMobile"></result>
+        <result column="user_email" property="userEmail"></result>
+        <result column="user_channel_id" property="userChannelId"></result>
+        <result column="ent_id" property="entId"></result>
+        <result column="ent_name" property="entName"></result>
+        <result column="guid" property="guid"></result>
+        <result column="geid" property="geid"></result>
+        <result column="data_state" property="dataState"></result>
+        <result column="create_date" property="createDate"></result>
+        <result column="update_date" property="updateDate"></result>
+        <collection javaType="java.util.List" property="userAccountList"
+                    ofType="com.bootdo.increment.domain.TbIncrementUserAccount">
+            <id column="account_id" property="accountId"></id>
+            <result column="user_id" property="userId"></result>
+            <result column="account_type" property="accountType"></result>
+            <result column="increment_amount" property="incrementAmount"></result>
+            <result column="reward_amount" property="rewardAmount"></result>
+            <result column="data_state" property="dataState"></result>
+            <result column="create_date" property="createDate"></result>
+            <result column="update_date" property="updateDate"></result>
+            <collection javaType="java.util.List" property="transferClearingList"
+                        ofType="com.bootdo.increment.domain.TbIncrementTransferClearing">
+                <id column="clearing_id" property="clearingId"></id>
+                <result column="account_id" property="accountId"></result>
+                <result column="transfer_amount" property="transferAmount"></result>
+                <result column="transfer_type" property="transferType"></result>
+                <result column="transfer_state" property="transferState"></result>
+                <result column="clearing_is_push" property="clearingIsPush"></result>
+                <result column="data_state" property="dataState"></result>
+                <result column="create_date" property="createDate"></result>
+                <result column="update_date" property="updateDate"></result>
+                <result column="complate_date" property="complateDate"></result>
+            </collection>
+        </collection>
+    </resultMap>
+    <!--    用户交易记录查询条件-->
+    <sql id="userTransaction">
+        <where>
+            tb_increment_transfer_clearing.account_id = tb_increment_user_account.account_id
+            AND tb_increment_user_account.user_id = tb_increment_user.user_id
+            <if test="clearingId !=null and clearingId != ''">
+                and tb_increment_transfer_clearing.clearing_id like '${clearingId}%'
+            </if>
+            <if test="userName != null and userName != ''">
+                and tb_increment_user.user_name like '${userName}%'
+            </if>
+            <if test="userMobile != null and userMobile != ''">
+                and tb_increment_user.user_mobile like '${userMobile}%'
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                and tb_increment_user.user_email like '${userEmail}%'
+            </if>
+            <if test="userChannelId !=null and userChannelId!= ''">
+                and tb_increment_user.user_channel_id = #{userChannelId}
+            </if>
+            <if test="entName != null and entName != ''">
+                and tb_increment_user.ent_name like '${entName}%'
+            </if>
+            <if test="transferType != null and transferType != ''">
+                and tb_increment_transfer_clearing.transfer_type =#{transferType}
+            </if>
+            <if test="accountType != null and accountType != ''">
+                and tb_increment_user_account.account_type = #{accountType}
+            </if>
+            <if test="transferState != null and transferState != ''">
+                and tb_increment_transfer_clearing.transfer_state =#{transferState}
+            </if>
+            <if test="createDateStart != null and createDateStart != ''">
+                and tb_increment_transfer_clearing.create_date >= #{createDateStart}
+            </if>
+            <if test="createDateEnd != null and createDateEnd != ''">
+                and tb_increment_transfer_clearing.create_date &lt;= #{createDateEnd}
+            </if>
+            <if test="complateDateStart != null and complateDateStart != ''">
+                and tb_increment_transfer_clearing.complate_date >= #{complateDateStart}
+            </if>
+            <if test="complateDateEnd != null and complateDateEnd != ''">
+                and tb_increment_transfer_clearing.complate_date &lt;= #{complateDateEnd}
+            </if>
+        </where>
+    </sql>
+    <!--    用户交易记录查询-->
+    <select id="selectUserTransactionList" resultMap="userTran">
+        SELECT
+        tb_increment_transfer_clearing.clearing_id,
+        tb_increment_user.user_name,
+        tb_increment_user.user_mobile,
+        tb_increment_user.user_email,
+        tb_increment_user.user_channel_id,
+        tb_increment_user.ent_name,
+        tb_increment_transfer_clearing.transfer_amount,
+        tb_increment_transfer_clearing.transfer_type,
+        tb_increment_user_account.account_type,
+        tb_increment_transfer_clearing.transfer_state,
+        tb_increment_transfer_clearing.create_date,
+        tb_increment_transfer_clearing.complate_date
+        FROM
+        tb_increment_transfer_clearing,
+        tb_increment_user,
+        tb_increment_user_account
+        <include refid="userTransaction"></include>
+        ORDER BY
+        tb_increment_transfer_clearing.create_date DESC
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+
+    <!--    用户交易记录查询count-->
+    <select id="selectUserTransactionCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        tb_increment_transfer_clearing,
+        tb_increment_user,
+        tb_increment_user_account
+        <include refid="userTransaction"></include>
+    </select>
+</mapper>

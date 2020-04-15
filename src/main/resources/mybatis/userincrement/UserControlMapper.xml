@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.increment.dao.UserControlDao">
+    <sql id="UserControl">
+        <where>
+            <if test="userName !=null and userName != ''">
+                and tb_increment_user.user_name like '${userName}%'
+            </if>
+            <if test="userMobile != null and userMobile != ''">
+                and tb_increment_user.user_mobile like '${userMobile}%'
+            </if>
+            <if test="userEmail != null and userEmail !=''">
+                and tb_increment_user.user_email like '${userEmail}%'
+            </if>
+            <if test="userChannelId !=null and userChannelId !=''">
+                and tb_increment_user.user_channel_id =#{userChannelId}
+            </if>
+            <if test="entName != null and entName != ''">
+                and tb_increment_user.ent_name like '${entName}'
+            </if>
+            <if test="createDateStart !=null and createDateStart!= ''">
+                and tb_increment_user.create_date >= #{createDateStart}
+            </if>
+            <if test="createDateEnd != null and createDateEnd!=''">
+                and tb_increment_user.create_date &lt;= #{createDateEnd}
+            </if>
+        </where>
+    </sql>
+    <select id="selectUserControlList" resultType="com.bootdo.increment.domain.TbIncrementUser">
+        SELECT
+        tb_increment_user.user_id AS userId,
+        tb_increment_user.user_name AS userName,
+        tb_increment_user.user_mobile AS userMobile,
+        tb_increment_user.user_email AS userEmail,
+        tb_increment_user.user_channel_id AS userChannelId,
+        tb_increment_user.ent_id AS entId,
+        tb_increment_user.ent_name AS entName,
+        tb_increment_user.create_date AS createDate
+        FROM
+        tb_increment_user
+        <include refid="UserControl"></include>
+        order by tb_increment_user.create_date desc
+        <if test="offset != '' and limit != ''">
+            limit ${offset},${limit}
+        </if>
+
+    </select>
+
+    <select id="selectUserControlCount" resultType="int">
+        SELECT
+        count(*)
+        FROM
+        tb_increment_user
+        <include refid="UserControl"></include>
+    </select>
+</mapper>

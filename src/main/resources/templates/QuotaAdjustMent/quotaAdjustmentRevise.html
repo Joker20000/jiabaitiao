@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<style>
+    .margin {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .aler {
+        display: none;
+        border: 1px solid #ababab;
+        position: fixed;
+        top: 30%;
+        left: 25%;
+        z-index: 5;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #4a4a4a;
+        color: white;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .justify1 {
+        display: inline-block;
+        width: 100px;
+        text-align: justify;
+    }
+
+    .justify1 + span {
+        margin: 0px 10px;
+    }
+
+    .justify1:after {
+        content: "";
+        padding-left: 100%;
+        display: inline-block;
+    }
+
+    .distance {
+        height: 44px;
+    }
+</style>
+<body class="gray-bg" style="background-color: #f8f8f8;color:black;font-size:16px;">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-body">
+                    <span style="display: none" id="userId" th:text="${row.userId}">...</span>
+                    <!--begin-->
+                    <form action="#" autocomplete="off">
+                    <table class='table'>
+                        <!--<tr>  <th colspan='3' style='text-align: center'>手机认证</th> </tr>-->
+                        <tr>
+                            <td width="150px;">姓名</td>
+                            <td>身份证</td>
+                            <td>手机号</td>
+                            <td>企业名称</td>
+                        </tr>
+                        <tr>
+                            <td><span id="realName" th:text="${row.realName}" onkeydown="onKeyDown(event)"></span></td>
+                            <td><span id="cardId" th:text="${row.cardId}" onkeydown="onKeyDown(event)"></span></td>
+                            <td><span id="mobile" th:text="${row.mobile}" onkeydown="onKeyDown(event)"></span></td>
+                            <td><span id="companyName" th:text="${row.companyName}" onkeydown="onKeyDown(event)"></span>
+                            </td>
+                        </tr>
+
+                        <!--<tr>  <th colspan='3' style='text-align: center'>手机认证</th> </tr>-->
+                        <tr>
+                            <td>
+                                <label for="down">增加额度</label>
+                                <input type="radio" name="revise" value="0" id="down"
+                                       placeholder="增加额度" onkeydown="onKeyDown(event)">
+                            </td>
+                            <td>
+                                <label for="up">减少额度</label>
+                                <input type="radio" name="revise" value="1" id="up"
+                                       placeholder="减少额度" onkeydown="onKeyDown(event)">
+                            </td>
+                            <td>
+                                <textarea type="text" id="quotaq" class="form-control" placeholder="调整额度" style="resize: none; height: 35px; width: auto;"
+                                          onkeyup="value=value.replace(/[^\d]/g,'')" onkeydown="onKeyDown(event)" autocomplete="new-password" disableautocomplete ></textarea>
+                            </td>
+                            <td><span id="showChange" style="color:red;"></span></td>
+                        </tr>
+                        <tr>
+                            <td>当前授信额度</td>
+                            <td>
+                                <span id="creditLimit" th:text="${row.creditLimit}" onkeydown="onKeyDown(event)"></span>
+                                <span id="creditLimitUp"></span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>调整后授信额度</td>
+                            <td colspan="3">
+                                <span id="shouxin"
+                                      onkeydown="onKeyDown(event)"></span>
+                                <span id="shouxinUp"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                           <td><input type="radio" name="options" value="1">
+                                   <label style="color: black">调整会员级别</label>
+                               </td>
+                             <td style="width: 150px">
+                                <select data-placeholder="请选择级别" class="form-control chosen-select"
+                                        tabindex="2" style="width: 150px" id="vipType">
+                                    <option value="">请选择级别</option>
+                                    <option value="1">VIP1</option>
+                                    <option value="2">VIP2</option>
+                                    <option value="3">VIP3</option>
+                                    <option value="4">VIP4</option>
+                                    <option value="5">VIP5</option>
+                                </select>
+                            </td>
+                        <td style="padding-right: 20px">
+                            <span>当前级别为</span>
+                            <span  id="vipLevel" th:text="'VIP'+${row.vipLevel}">...</span></td>
+                        </tr>
+                        <tr>
+                            <td>调整原因<span style="color: red;">*</span></td>
+                            <td colspan="4">
+                                <textarea id="adjustReason" type="text" class="form-control"  placeholder="调整原因"
+                                          onkeydown="onKeyDown(event)"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>密码<span style="color: red;">*</span></td>
+                            <td>
+                                <!--<input id="pwd" type="text" onkeydown="onKeyDown(event)" placeholder="密码"-->
+                                <!--style="line-height: 40px;-webkit-text-security:disc;text-security:disc;"-->
+                                <!--class="form-control" autocomplete="new-password" disableautocomplete/>-->
+                            <input type="password" id="pwd" placeholder="密码" style="line-height: 40px;" class="form-control" autocomplete="new-password"/>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td><button class="btn btn-success" id="sub" type="button" style="float: right">提交</button></td>
+                            <td>
+                                <button class="btn btn-success" style="float: left" onclick="layer.close(layer.index); window.parent.location.reload()">取消</button>
+                            </td>
+                        </tr>
+                    </table>
+                    </form>
+                    <input type="hidden" id="uname" value='${currentUser.trueName}'>
+                    <div class="aler">
+
+                    </div>
+
+                    <!--end-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案-->
+    <div>
+        <script type="text/javascript">
+            var s_edit_h = 'hidden';
+            var s_remove_h = 'hidden';
+            var s_resetPwd_h = 'hidden';
+        </script>
+    </div>
+    <div shiro:hasPermission="sys:userN:edit">
+        <script type="text/javascript">
+            s_edit_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="sys:userN:remove">
+        <script type="text/javascript">
+            var s_remove_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="sys:userN:resetPwd">
+        <script type="text/javascript">
+            var s_resetPwd_h = '';
+        </script>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" src="/js/appjs/QuotaAdjustMent/quotaAdjustmentRevise.js"></script>
+<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js"></script>
+<script>
+    $(function () {
+    });
+
+
+    function onKeyDown(event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 13) {
+            reLoad();
+        }
+    }
+
+    /*$(function () {
+        $('#pwd').click(function () {
+            $("#pwd").unbind();
+        });
+    })*/
+
+</script>
+</body>
+</html>

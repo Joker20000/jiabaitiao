@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.Check.dao.ICheckDao">
+    <!--查待审核-->
+    <select id="list" parameterType="java.lang.String" resultType="com.bootdo.Check.domain.Enter">
+        SELECT
+        e.chack_no as chackno,
+        e.e_id as eid,
+        e.apply_time as applytime,
+        e.last_instance_time as lastinstancetime,
+        e.chack_state as chackstate,
+        c.e_id as eid,
+        c.c_e_id as ceid,
+        c.e_name as ename,
+        (SELECT te.result FROM t_chack_record te WHERE te.chack_no = e.chack_no and te.type = '03'
+        ORDER BY te.chack_record_id
+        DESC LIMIT 0,1)
+        as result
+        FROM t_chack e,t_enterprise c
+        where
+        c.e_id=e.e_id
+        <if test="eid != null and  eid !=''">
+            and e.e_id like #{eid}
+        </if>
+        <if test="ename != null and  ename !=''">
+            and c.e_name like #{ename}
+        </if>
+        <if test="chackstate != null and  chackstate !=''">
+            and e.chack_state =#{chackstate}
+        </if>
+        order by e.chack_no desc
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="count" resultType="int">
+        select count(*) from t_chack e left join t_enterprise c on e.e_id = c.e_id
+        where
+        1=1
+        <if test="eid != null and  eid !=''">
+            and e.e_id like #{eid}
+        </if>
+        <if test="ename != null and  ename !=''">
+            and c.e_name like #{ename}
+        </if>
+        <if test="chackstate != null and  chackstate !=''">
+            and e.chack_state =#{chackstate}
+        </if>
+    </select>
+
+    <select id="get" resultType="com.bootdo.Check.domain.Enter">
+		SELECT
+		e.e_id as eid,
+		e.channel as channel,
+		e.c_admin_id as cadminid,
+		e.c_e_id as ceid,
+		e.e_name as ename,
+		e.credit_code as creditcode,
+		e.address as address,
+		e.telephone as telephone,
+		e.linkman as linkman,
+		e.link_duties as linkduties,
+		e.link_phone as linkphone,
+		e.guarant as guarant,
+		e.guarant_duties as guarantduties,
+		e.guarant_phone as guarantphone,
+		e.guarant_ide as guarantide,
+		e.state as state,
+		e.create_time as createtime,
+		c.chack_no as chackno,
+		c.chack_state as chackstate,
+		c.valid as valid,
+		ta.account_no as accountno
+		FROM t_enterprise e left join t_chack c on e.e_id = c.e_id,t_act_account ta
+		where
+		ta.e_id = e.e_id
+		and
+		c.chack_no = #{chackno}
+	</select>
+
+    <!--添加到历史表-->
+    <insert id="insertHistory" parameterType="com.bootdo.Check.domain.Enter">
+    insert into
+    t_enterprise_history (
+		e_id,
+		chack_no,
+		channel,
+		c_admin_id,
+		c_e_id,
+		e_name,
+		credit_code,
+		address,
+		telephone,
+		linkman,
+		link_duties,
+		link_phone,
+		guarant,
+		guarant_duties,
+		guarant_phone,
+		state
+		)
+    values (
+    #{eid},
+    #{chackno},
+    #{channel},
+    #{cadminid},
+    #{ceid},
+    #{ename},
+    #{creditcode},
+    #{address},
+    #{telephone},
+    #{linkman},
+    #{linkduties},
+    #{linkphone},
+    #{guarant},
+    #{guarantduties},
+    #{guarantphone},
+    #{state}
+      )
+  </insert>
+    <!-- #{guarantide},-->
+    <!--查找当前用户-->
+
+    <select id="getUser" resultType="com.bootdo.system.domain.UserDO">
+		select `user_id`,`username`,`name`,`password`,`dept_id`,`email`,`mobile`,`status`,`user_id_create`,`gmt_create`,`gmt_modified`,`sex`,`birth`,`pic_id`,`live_address`,`hobby`,`province`,`city`,`district` from sys_user where user_id = #{value}
+	</select>
+    <!--修改-->
+
+    <update id="update" parameterType="com.bootdo.Check.domain.Enter">
+        update
+        t_chack
+        set
+        <if test="lastinstancetime!=null and lastinstancetime!=''">
+            last_instance_time = #{lastinstancetime},
+        </if>
+        <if test="valid!=null and valid!=''">
+            valid = #{valid},
+        </if>
+        chack_state=#{chackstate}
+        where chack_no=#{chackno}
+    </update>
+    <!--添加记录-->
+    <insert id="insert" parameterType="com.bootdo.Check.domain.Enter">
+    insert into
+    t_chack_record (
+		chack_no ,
+		credit_line,
+		chack_id ,
+		chack_name,
+		result,
+		opinion,
+		type)
+    values (
+    #{chackno,jdbcType=VARCHAR},
+    #{creditline,jdbcType=VARCHAR},
+    #{chackid,jdbcType=VARCHAR},
+    #{chackname,jdbcType=VARCHAR},
+    #{result,jdbcType=VARCHAR},
+    #{opinion,jdbcType=VARCHAR},
+    #{type,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+    <!--查询图片文件-->
+    <select id="pictures" resultType="com.bootdo.Check.domain.Enter">
+		SELECT
+		c.addr,
+		CASE
+		c.type
+		when '01' then '企业财报'
+		when '02' then '企业对公流水'
+		when '03' then '担保人征信报告'
+		when '04' then '担保人身份证正面'
+		else '担保人身份证反面' end as type
+		FROM
+		 t_chack e
+		 RIGHT JOIN t_file_addr c ON e.chack_no = c.chack_no
+		 WHERE c.chack_no = #{chackno}
+
+	</select>
+
+    <select id="selAct" resultType="java.lang.String">
+		SELECT e.account_no
+		FROM t_act_account e
+		LEFT JOIN t_enterprise c on e.e_id = c.e_id
+		where c.e_id = #{eid}
+	</select>
+    <select id="selFSF" resultType="com.bootdo.Check.domain.Enter">
+		select
+		*
+		from t_chack_record
+		where
+		chack_record_id
+		in (select  MAX(chack_record_id) as m
+		from t_chack_record
+		where  chack_no=#{chackno}  group by  type )
+		and
+		type=#{type}
+	</select>
+
+
+    <!--下载开始-->
+    <select id="CheExcelOne" resultType="java.util.HashMap">
+        SELECT
+        e.chack_no as chackno,
+        e.e_id as eid,
+        e.apply_time as applytime,
+        e.last_instance_time as lastinstancetime,
+        e.chack_state as chackstate,
+        c.e_id as eid,
+        c.c_e_id as ceid,
+        c.e_name as ename,
+        (SELECT te.result FROM t_chack_record te WHERE te.chack_no = e.chack_no
+        ORDER BY te.chack_record_id
+        DESC LIMIT 0,1)
+        as result
+        FROM t_chack e,t_enterprise c
+        where
+        c.e_id=e.e_id
+        <if test="eid != null and  eid !=''">
+            and c.e_id like #{eid}
+        </if>
+        <if test="ename != null and  ename !=''">
+            and c.e_name like #{ename}
+        </if>
+        order by e.chack_no desc
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+    <select id="CheExcelTwo" resultType="com.bootdo.Check.domain.CheExcel">
+        SELECT
+        te.chack_time as chuTime,
+        te.result as chuRes,
+        te.chack_name as chuName,
+        c.c_e_id as ceid,
+        c.e_name as ename,
+        e.chack_no as chackno
+        FROM
+        t_chack_record te, t_chack e,t_enterprise c
+        where
+        te.chack_no = e.chack_no
+        and
+        c.e_id=e.e_id
+        and
+        te.chack_no = #{chackno}
+        and
+        type = #{type}
+        <if test="ceid != null and  ceid !=''">
+            and c.c_e_id =#{ceid}
+        </if>
+        <if test="ename != null and  ename !=''">
+            and c.e_name =#{ename}
+        </if>
+        ORDER BY
+        te.chack_record_id
+        DESC
+        LIMIT 0,1
+    </select>
+    <!--添加有效时间-->
+    <update id="addTime">
+     UPDATE
+	t_act_account e
+	SET
+	e.lose_date=#{losedate}
+	WHERE
+	e.e_id = #{eid}
+    </update>
+
+    <select id="selParam" resultType="com.bootdo.Check.domain.Enter">
+	SELECT
+	*
+	FROM
+	t_parameter
+	</select>
+
+
+    <select id="selGroup" resultType="com.bootdo.Check.domain.Enter">
+		select
+		chack_name as chackname,
+		result as result,
+		DATE_FORMAT(
+		chack_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS chacktime
+		from t_chack_record
+		where
+		chack_record_id
+		in (select  MAX(chack_record_id) as m
+		from t_chack_record
+		where  chack_no=#{chackno}  group by  type )
+		and
+		type=#{type}
+	</select>
+    <update id="updateState">
+	  update
+      t_enterprise e left join  t_chack c on e.e_id = c.e_id
+      set
+      state=#{state}
+      where chack_no=#{chackno}
+	</update>
+
+    <select id="searchUserJFidByUserId" resultType="java.util.HashMap">
+        SELECT u.JF_USER_ID AS jfid FROM TB_USER u WHERE u.USER_ID = #{userid}
+	</select>
+
+</mapper>

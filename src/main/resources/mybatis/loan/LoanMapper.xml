@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bootdo.Loan.dao.LoanDao">
+	<select id="list" resultType="com.bootdo.Loan.domain.LoanEntity">
+		select
+		loan_num as loanNum,
+		e_name as eName,
+		amount as amount,
+		DATE_FORMAT(repay_date,'%Y-%m-%d') as repayDate,
+		order_state as orderState,
+		chack_state as chackState,
+		over_state as overState,
+		repay_state as repayState,
+		DATE_FORMAT(create_date,'%Y-%m-%d %H:%i:%s') as createDate
+		from t_loan_order
+		<where>
+			<if test="loanNum != null and loanNum != ''">
+				and loan_num like #{loanNum}
+			</if>
+			<if test="eName != null and eName != ''">
+				and e_name like #{eName}
+			</if>
+			<if test="orderState != null and orderState != ''">
+				and order_state = #{orderState}
+			</if>
+			<if test="overState != null and overState != ''">
+				and over_state = #{overState}
+			</if>
+			<if test="repayState != null and repayState != ''">
+				and repay_state = #{repayState}
+			</if>
+			<if test="qBeginTime != null and qBeginTime != ''">
+				<![CDATA[ and create_date >= #{qBeginTime} ]]>
+			</if>
+			<if test="qEndTime != null and qEndTime != ''">
+				<![CDATA[ and create_date <= date_add(#{qEndTime}, interval 1 day) ]]>
+			</if>
+			<if test="chackState != null and chackState != ''">
+				and chack_state = #{chackState}
+			</if>
+
+		</where>
+		order by create_date desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from t_loan_order
+		<where>
+			<if test="loanNum != null and loanNum != ''">
+				and loan_num like #{loanNum}
+			</if>
+			<if test="eName != null and eName != ''">
+				and e_name like #{eName}
+			</if>
+			<if test="orderState != null and orderState != ''">
+				and order_state = #{orderState}
+			</if>
+			<if test="overState != null and overState != ''">
+				and over_state = #{overState}
+			</if>
+			<if test="repayState != null and repayState != ''">
+				and repay_state = #{repayState}
+			</if>
+			<if test="createDate != null and createDate != ''">
+				and create_date = #{createDate}
+			</if>
+			<if test="chackState != null and chackState != ''">
+				and chack_state = #{chackState}
+			</if>
+		</where>
+	</select>
+
+
+	<update id="updateChackState">
+		update t_loan_order
+		<set>
+			<if test="state != null and state != ''">`chack_state` = #{state}</if>
+		</set>
+		where loan_num = #{loanNum}
+	</update>
+
+
+
+	<select id="queryLoanLists" resultType="java.util.HashMap">
+		SELECT
+		loan_num AS loanNum,
+		channel AS channel,
+		c_e_id AS cEid,
+		e_name AS eName,
+		linkman AS linkman,
+		link_phone AS linkPhone,
+		guarant AS guarant,
+		guarant_phone AS guarantPhone,
+		amount AS amount,
+		year_rate AS yearRate,
+		loan_day AS loanDay,
+		min_proc_cost AS minProcCost,
+		over_rate AS overRate,
+		proc_cost AS procCost,
+		over_cost AS overCost,
+		DATE_FORMAT(
+		repay_date,
+		'%Y-%m-%d'
+		) AS repayDate,
+		rep_amount AS repAmount,
+		rep_proc_cost AS repProcCost,
+		rep_over_cost AS repOverCost,
+		order_state AS orderState,
+		chack_state AS chackState,
+		chack_name AS chackName,
+		over_state AS overState,
+		repay_state AS repayState,
+		DATE_FORMAT(
+		payoff_date,
+		'%Y-%m-%d %H:%i:%s'
+		) AS payoffDate,
+		payoff_type AS payoffType,
+		DATE_FORMAT(
+		create_date,
+		'%Y-%m-%d %H:%i:%s'
+		) AS createDate,
+		DATE_FORMAT(
+		loan_date,
+		'%Y-%m-%d %H:%i:%s'
+		) AS loanDate,
+		DATE_FORMAT(
+		chack_date,
+		'%Y-%m-%d %H:%i:%s'
+		) AS chackDate
+		FROM
+		t_loan_order
+		<where>
+			<if test="loanNum != null and loanNum != ''">
+				and loan_num like #{loanNum}
+			</if>
+			<if test="eName != null and eName != ''">
+				and e_name like #{eName}
+			</if>
+			<if test="orderState != null and orderState != ''">
+				and order_state = #{orderState}
+			</if>
+			<if test="overState != null and overState != ''">
+				and over_state = #{overState}
+			</if>
+			<if test="repayState != null and repayState != ''">
+				and repay_state = #{repayState}
+			</if>
+			<if test="qBeginTime != null and qBeginTime != ''">
+				<![CDATA[ and create_date >= #{qBeginTime} ]]>
+			</if>
+			<if test="qEndTime != null and qEndTime != ''">
+				<![CDATA[ and create_date <= date_add(#{qEndTime}, interval 1 day) ]]>
+			</if>
+			<if test="chackState != null and chackState != ''">
+				and chack_state = #{chackState}
+			</if>
+		</where>
+		order by create_date desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+</mapper>

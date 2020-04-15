@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.Check.dao.TbUserLinkmanInfoDao">
+
+    <sql id="resultSql">
+      ID as id,
+      CHACK_NO as chackNo,
+      RELATION as relation,
+      REALNAME as realname,
+      MOBILE as mobile,
+      ADDRESS as address,
+      SITUATION as situation,
+      DATA_STATE as dataState,
+      CREATE_TIME as createTime
+    </sql>
+    <sql id="whereSql">
+        <where>
+            <if test="id != null and id != ''">
+                ID = #{id}
+            </if>
+            <if test="chackNo != null and chackNo != ''">
+                CHACK_NO = #{chackNo}
+            </if>
+            <if test="relation != null and relation != ''">
+                and RELATION = #{relation}
+            </if>
+            <if test="realname != null and realname != ''">
+                and REALNAME LIKE CONCAT(CONCAT('%', #{realname}), '%')
+            </if>
+            <if test="mobile != null and mobile != ''">
+                and MOBILE = LIKE CONCAT(CONCAT('%', #{mobile}), '%')
+            </if>
+            <if test="address != null and address != ''">
+                and ADDRESS = #{address}
+            </if>
+            <if test="situation != null and situation != ''">
+                and SITUATION = #{situation}
+            </if>
+            <if test="dataState != null and dataState != ''">
+                and DATA_STATE = #{dataState}
+            </if>
+            <if test="createTime != null and createTime != ''">
+                and CREATE_TIME = #{createTime}
+            </if>
+            and DATA_STATE = '1'
+        </where>
+    </sql>
+
+
+    <select id="get" parameterType="com.bootdo.Check.domain.TbUserLinkmanInfo"
+            resultType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+        select
+        <include refid="resultSql"/>
+        from TB_USER_LINKMAN_INFO
+        <include refid="whereSql"/>
+    </select>
+
+    <select id="find" parameterType="java.lang.String" resultType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+        select
+        <include refid="resultSql"/>
+        from TB_USER_LINKMAN_INFO
+        where ID = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+      INSERT INTO TB_USER_LINKMAN_INFO
+      (CHACK_NO, RELATION,REALNAME,MOBILE,ADDRESS,SITUATION,DATA_STATE,CREATE_TIME)
+      VALUES
+      (#{chackNo},#{relation},#{realname},#{mobile},#{address},#{situation},
+      #{dataState},DEFAULT)
+    </insert>
+
+    <update id="update" parameterType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+        update TB_USER_LINKMAN_INFO
+        <set>
+            <!-- <if test="accountNo != null and accountNo != ''">
+                 ACCOUNT_NO = #{accountNo},
+             </if>-->
+            <if test="relation != null and relation != ''">
+                RELATION = #{relation},
+            </if>
+            <if test="realname != null and realname != ''">
+                REALNAME = #{realname},
+            </if>
+            <if test="mobile != null and mobile != ''">
+                MOBILE = #{mobile},
+            </if>
+            <if test="address != null and address != ''">
+                ADDRESS = #{address},
+            </if>
+            <if test="situation != null and situation != ''">
+                SITUATION = #{situation},
+            </if>
+            <if test="dataState != null and dataState != ''">
+                DATA_STATE = #{dataState},
+            </if>
+            CREATE_TIME = DEFAULT
+        </set>
+        where ID = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.String" >
+      delete from TB_USER_LINKMAN_INFO where ID = #{id}
+    </delete>
+
+</mapper>

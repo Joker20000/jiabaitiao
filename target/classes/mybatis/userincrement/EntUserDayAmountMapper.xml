@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.increment.dao.EntUserDayAmountDao">
+
+    <sql id="entUserDayAmount">
+        <where>
+            <if test="entId !=null and entId != ''">
+                and ent_id like '${entId}%'
+            </if>
+            <if test="entName !=null and entName != ''">
+                and ent_name like '${entName}%'
+            </if>
+            <if test="channelId !=null and channelId != ''">
+                and channel_id = #{channelId}
+            </if>
+            <if test="statisticsDateStart !=null and statisticsDateStart != ''">
+                and statistics_date >= #{statisticsDateStart}
+            </if>
+            <if test="statisticsDateEnd !=null and statisticsDateEnd != ''">
+                and statistics_date &lt;= #{statisticsDateEnd}
+            </if>
+            <if test="createDateStart !=null and createDateStart != ''">
+                and create_date >= #{createDateStart}
+            </if>
+            <if test="createDateEnd !=null and createDateEnd != ''">
+                and create_date &lt;= #{createDateEnd}
+            </if>
+        </where>
+    </sql>
+    <select id="selectEntUserDayAmountList" resultType="com.bootdo.increment.domain.TbEntUserDayAmount">
+        SELECT
+        statistics_date,
+        ent_id,
+        ent_name,
+        channel_id,
+        total_reward_amount,
+        create_date
+        FROM
+        tb_ent_user_day_amount
+        <include refid="entUserDayAmount"></include>
+        order by statistics_date,create_date desc
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+    <select id="selectEntUserDayAmountCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        tb_ent_user_day_amount
+        <include refid="entUserDayAmount"></include>
+    </select>
+</mapper>

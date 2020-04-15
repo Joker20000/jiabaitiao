@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<meta charset="utf-8">
+<head th:include="include :: header">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/js/plugins/layer/laydate/skins/default/laydate.css"/>
+
+</head>
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="ibox">
+                <div class="tab-content">
+                    <form action="" method="post">
+                        <h3>
+                            该笔为&nbsp;<span id="loanName" th:text="${data.uname}"/>张三</span>&nbsp;，第&nbsp;<span th:text="${data.rank}">3</span>&nbsp;笔待还款，剩余待还&nbsp;<span th:text="${data.remaMoney}">109231.22</span>&nbsp;元，该人总剩余待还&nbsp;<span th:text="${data.countNum}">2</span>&nbsp;笔，&nbsp;<span th:text="${data.totalMoney}">18519.25</span>&nbsp;元
+                        </h3>
+                        <!--左title-->
+                        <div class="ibox-content tab-pane fade in active">
+                            <div>
+                                <em><input type="radio" name="checkOne"/>发送短信内容1</em><br />
+                                        <textarea style="width: 600px;height: 80px;" th:text="${data.messageOne}" readonly="readonly">网络异常，内容丢失</textarea>
+                            </div>
+                            <div style="margin-top:20px;">
+                                <em><input type="radio" name="checkOne" />发送短信内容2</em><br />
+                                        <textarea style="width: 600px;height: 80px;" th:text="${data.messageTwo}" readonly="readonly">网络异常，内容丢失</textarea>
+                            </div>
+                            <div style="margin-top:20px;">
+                                <em><input type="radio" name="checkOne"/>指定内容</em><span></span>
+                                        <textarea style="width: 600px;height: 80px;" class="form-control"></textarea>
+                            </div>
+                        </div>
+                        <span class="col-xs-2" style="width: 90px;">手机号码:</span>
+                        <div class="col-xs-6 col-md-4">
+                            <input id="mobile" type="text" class="form-control" style="width: 300px;" th:value="${data.mobile}"
+                                  onkeydown="onKeyDown(event)">
+                        </div>
+                        <span id="mobile1" th:text="${data.mobile}" style="display: none;"></span>
+                        <span id="userChannelId" th:text="${data.userChannelId}" style="display: none;"></span>
+                        <div class="gg-btnGroup">
+                            <button type="button" class="btn btn-sm btn-primary" id="submit">发送</button>
+                            <button type="button" class="btn btn-sm btn-warning" id="cancel"
+                                    onclick="layer.close(layer.index); window.parent.location.reload()"       style="margin-left: 13px;margin-right: 13px;">取消
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js"></script>
+<script type="text/javascript" src="../../static/js/layui.js"></script>
+<script type="text/javascript" src="/js/appjs/AfterLoanAccount/SendMessage.js"></script>
+</body>
+</html>

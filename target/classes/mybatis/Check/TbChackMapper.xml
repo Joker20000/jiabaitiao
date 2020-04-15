@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.Check.dao.TbChackDao">
+    <resultMap id="BaseResultMap" type="com.bootdo.Check.domain.TbChack">
+        <id column="CHACK_NO" property="chackNo" jdbcType="VARCHAR"/>
+        <result column="ACCOUNT_NO" property="accountNo" jdbcType="VARCHAR"/>
+        <result column="USER_ID" property="userId" jdbcType="VARCHAR"/>
+        <result column="CHACK_TYPE" property="chackType" jdbcType="VARCHAR"/>
+        <result column="CREDIT_LINE" property="creditLine" jdbcType="VARCHAR"/>
+        <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP"/>
+        <result column="LAST_TIME" property="lastTime" jdbcType="TIMESTAMP"/>
+        <result column="CHACK_STATE" property="chackState" jdbcType="CHAR"/>
+        <result column="CHACK_RESULT" property="chackResult" jdbcType="CHAR"/>
+        <result column="VALID" property="valid" jdbcType="CHAR"/>
+    </resultMap>
+    <select id="findTbChack" resultType="java.lang.String">
+        select CHACK_TYPE as chackType from TB_CHACK where CHACK_NO = #{chackno} and VALID = '1'
+    </select>
+    <!--查待审核-->
+    <select id="list" parameterType="java.util.Map" resultType="com.bootdo.Check.domain.TbChack">
+        select
+        ch.CHACK_NO AS chackNo,
+        ch.ACCOUNT_NO AS accountNo,
+        ch.USER_ID AS userId,
+        info.REALNAME AS realname,
+        m.MOBILE as mobile,
+        ch.CHACK_TYPE AS chackType,
+        ch.CHACK_STATE AS chackState,
+        ch.APPLY_TIME AS applyTime,
+        ch.LAST_TIME AS lastTime,
+        ch.CHACK_RESULT AS chackResult,
+        ch.VALID AS valid
+        from TB_CHACK as ch
+        LEFT JOIN TB_ACCOUNT_INFO AS info ON ch.ACCOUNT_NO = info.ACCOUNT_NO
+        LEFT JOIN TB_USER AS m ON m.USER_ID = ch.USER_ID
+        <where>
+            <if test="realname != null and realname !=''">
+                and info.REALNAME like #{realname}
+            </if>
+            <if test="mobile != null and  mobile !=''">
+                and m.MOBILE like #{mobile}
+            </if>
+            <if test="accountNo != null and  accountNo !=''">
+                and ch.ACCOUNT_NO = #{accountNo}
+            </if>
+            <if test="userId != null and  userId !=''">
+                and  ch.USER_ID = #{userId}
+            </if>
+            <if test="chackNo != null and  chackNo !=''">
+                and ch.CHACK_NO = #{chackNo}
+            </if>
+            <if test="chackType != null and chackType !=''">
+                and ch.CHACK_TYPE = #{chackType}
+            </if>
+            <if test="chackTypes != null and chackTypes !=''">
+                and ch.CHACK_TYPE  in ('03','04','05')
+            </if>
+            <if test="applyTimeStart != null and applyTimeStart !=''">
+                <![CDATA[ and ch.APPLY_TIME >= #{applyTimeStart}  ]]>
+            </if>
+            <if test="applyTimeEnd != null and  applyTimeEnd !=''">
+                <![CDATA[ and ch.APPLY_TIME <= date_add(#{applyTimeEnd}, interval 1 day)]]>
+            </if>
+            <if test="lastTimeStart != null and  lastTimeStart !=''">
+                <![CDATA[ and ch.LAST_TIME >= #{lastTimeStart}  ]]>
+            </if>
+            <if test="lastTimeEnd != null and  lastTimeEnd !=''">
+                <![CDATA[ and ch.LAST_TIME <= date_add(#{lastTimeEnd}, interval 1 day)]]>
+            </if>
+            <if test="chackResult != null and  chackResult !=''">
+                and ch.CHACK_RESULT =#{chackResult}
+            </if>
+            <if test="valid != null and  valid !=''">
+                and ch.VALID =#{valid}
+            </if>
+            <if test="chackState != null and  chackState !=''">
+                and ch.CHACK_STATE =#{chackState}
+            </if>
+            <if test="chackState1 != null and chackState1 !=''">
+                and ch.CHACK_STATE in (0,1,4)
+            </if>
+            <if test="chackState2 != null and chackState2 !=''">
+                and ch.CHACK_STATE in (2,3)
+            </if>
+            and ch.VALID = '1'
+        </where>
+        order by ch.CHACK_NO desc
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+    </if>
+
+    </select>
+    <!--查询次数-->
+    <select id="count" resultType="int">
+        select count(*) from TB_CHACK as ch
+        LEFT JOIN TB_ACCOUNT_INFO AS info ON ch.ACCOUNT_NO = info.ACCOUNT_NO
+        LEFT JOIN TB_USER AS m ON m.USER_ID = ch.USER_ID
+        <where>
+            <if test="realname != null and realname !=''">
+                and info.REALNAME like #{realname}
+            </if>
+            <if test="mobile != null and  mobile !=''">
+                and m.MOBILE like #{mobile}
+            </if>
+            <if test="accountNo != null and  accountNo !=''">
+                and ch.ACCOUNT_NO = #{accountNo}
+            </if>
+            <if test="userId != null and  userId !=''">
+                and  ch.USER_ID = #{userId}
+            </if>
+            <if test="chackNo != null and  chackNo !=''">
+                and ch.CHACK_NO = #{chackNo}
+            </if>
+            <if test="chackType != null and chackType !=''">
+                and ch.CHACK_TYPE = #{chackType}
+            </if>
+            <if test="applyTimeStart != null and applyTimeStart !=''">
+                <![CDATA[ and ch.APPLY_TIME >= #{applyTimeStart}  ]]>
+            </if>
+            <if test="applyTimeEnd != null and  applyTimeEnd !=''">
+                <![CDATA[ and ch.APPLY_TIME <= date_add(#{applyTimeEnd}, interval 1 day)]]>
+            </if>
+            <if test="lastTimeStart != null and  lastTimeStart !=''">
+                <![CDATA[ and ch.LAST_TIME >= #{lastTimeStart}  ]]>
+            </if>
+            <if test="lastTimeEnd != null and  lastTimeEnd !=''">
+                <![CDATA[ and ch.LAST_TIME <= date_add(#{lastTimeEnd}, interval 1 day)]]>
+            </if>
+            <if test="chackResult != null and  chackResult !=''">
+                and ch.CHACK_RESULT =#{chackResult}
+            </if>
+            <if test="valid != null and  valid !=''">
+                and ch.VALID =#{valid}
+            </if>
+            <if test="chackState != null and  chackState !=''">
+                and ch.CHACK_STATE =#{chackState}
+            </if>
+            <if test="chackState1 != null and chackState1 !=''">
+                and ch.CHACK_STATE in (0,1,4)
+            </if>
+            <if test="chackState2 != null and chackState2 !=''">
+                and ch.CHACK_STATE in (2,3)
+            </if>
+            and ch.VALID = '1'
+        </where>
+        order by ch.CHACK_NO desc
+    </select>
+    <!--修改信审状态-->
+    <update id="updateState" parameterType="java.util.Map">
+        update TB_CHACK
+        <set>
+            <if test="userState != null and userState != ''">
+                CHACK_STATE = #{userState},
+            </if>
+            <if test="chackResult != null and chackResult != ''">
+                CHACK_RESULT =  #{chackResult},
+            </if>
+            <if test="chackResultFlag != null and chackResultFlag != ''">
+                CHACK_RESULT =  '0',
+            </if>
+            <if test="creditLine != null and creditLine != ''">
+                CREDIT_LINE =  #{creditLine},
+            </if>
+            <if test="lastTime !=null and lastTime != ''">
+                LAST_TIME = NOW()
+            </if>
+
+        </set>
+        where
+        CHACK_NO = #{chackNo}
+    </update>
+    <!--查询用户来源  user-->
+    <select id="get" resultType="com.bootdo.Check.domain.TbUser">
+		SELECT
+		users.USER_CHANNEL_ID as userChannelId,
+		users.JF_USER_ID as jfUserId,
+		users.REALNAME as realname,
+		users.MOBILE as mobile,
+		users.COMPANY_ID as companyId,
+        users.COMPANY_NAME as companyName,
+        ch.CHACK_STATE as chackState
+        FROM
+        TB_CHACK AS ch
+        INNER JOIN TB_ACT_ACCOUNT_REL AS accountrel ON ch.ACCOUNT_NO = accountrel.ACCOUNT_NO
+        INNER JOIN TB_ACT_USER_ACCOUNT AS userAccount ON accountrel.ACCOUNT_ID = userAccount.ACCOUNT_ID
+        INNER JOIN TB_USER AS users ON userAccount.USER_ID = users.USER_ID
+        WHERE
+        ch.CHACK_NO = #{chackno}
+        and ch.VALID = '1'
+	</select>
+    <!--查询身份信息-->
+    <select id="getCardid"  parameterType="java.lang.String" resultType="com.bootdo.Check.domain.TbAccountInfo">
+        SELECT
+        info.PROVE_STATE as proveState,
+        info.REALNAME as  realname,
+        info.CARDID as  cardid,
+        info.VIP_LEVEL as vipLevel,
+        ch.CHACK_NO as chackNo,
+        ch.ACCOUNT_NO as accountNo
+        FROM
+        TB_CHACK AS ch
+        LEFT JOIN TB_ACCOUNT_INFO AS info ON ch.ACCOUNT_NO = info.ACCOUNT_NO
+        WHERE
+        ch.CHACK_NO = #{chackNo}
+        and ch.VALID = '1'
+    </select>
+    <!--查询同盾贷前结果 use-->
+    <select id="getResult" resultType="com.bootdo.Check.domain.TbTongdunResult">
+        SELECT
+        <!--result.AGE_STATE as ageState,-->
+        result.REAL_NAME_STATE AS realNameState,
+        result.NATURAL_PERSON_STATE as  naturalPersonState,
+        result.LOAN_REVIEW_STATE as loanReviewState,
+        result.LOAN_REVIEW_FRACTION as loanReviewFraction,
+        chack.CHACK_NO as chackNo,
+        REAL_NAME_DSC as realNameDsc,
+        NATURAL_PERSON_DSC as naturalPersonDsc,
+        CHACK_OTHER_DSC as chackOtherDsc
+        FROM
+        TB_CHACK AS chack
+        left JOIN  TB_TONGDUN_RESULT AS result  ON chack.ACCOUNT_NO = result.ACCOUNT_NO
+        WHERE
+        chack.CHACK_NO = #{chackNo}
+        and chack.VALID = '1'
+    </select>
+    <!--查询地址信息-->
+    <select id="getlive" parameterType="java.lang.String" resultType="com.bootdo.Check.domain.TbAccountInfo">
+        SELECT
+        c.ACCOUNT_NO AS accountNo,
+        a.LIVE_ADDRESS AS liveAddress,
+        a.ADDRESS_SITUATION AS addressSituation,
+        c.CHACK_NO AS chackNo,
+        a.LIVE_PROVINCE_NAME AS liveProvinceName,
+        a.LIVE_CITY_NAME AS liveCityName,
+        a.LIVE_DISTRICT_NAME AS liveDistrictName
+        FROM
+        TB_CHACK AS c
+        LEFT JOIN TB_ACCOUNT_INFO AS a ON c.ACCOUNT_NO = a.ACCOUNT_NO
+        WHERE
+        c.ACCOUNT_NO = #{accountNo}
+        and c.VALID = '1'
+        group by c.ACCOUNT_NO
+    </select>
+    <update id="updateLice" parameterType="com.bootdo.Check.domain.TbAccountInfo">
+        UPDATE TB_ACCOUNT_INFO
+        <set>
+            <if test="liveAddress != null and liveAddress != ''">
+                LIVE_ADDRESS = #{liveAddress} ,
+            </if>
+            <if test="addressSituation != null and addressSituation != ''">
+                ADDRESS_SITUATION = #{addressSituation} ,
+            </if>
+            <if test="vipLevel != null and vipLevel != ''">
+                VIP_LEVEL = #{vipLevel}
+            </if>
+        </set>
+        where ACCOUNT_NO= #{accountNo}
+    </update>
+    <!--查询联系人1/2信息-->
+    <select id="getUserLink" parameterType="java.lang.String" resultType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+        SELECT
+        u.ID  as id,
+        c.CHACK_NO as chackNo,
+        u.REALNAME as realname,
+        u.MOBILE as mobile,
+        u.RELATION as relation,
+        u.SITUATION as situation,
+		c.ACCOUNT_NO as accountNo
+        FROM
+        TB_CHACK AS c
+        INNER JOIN TB_USER_LINKMAN_INFO AS u ON c.CHACK_NO = u.CHACK_NO
+        WHERE
+        c.ACCOUNT_NO = #{accountNo}  and u.DATA_STATE = '1' and c.VALID = '1'
+    </select>
+    <!--查询审核有效和授信额度-->
+    <select id="selParam" resultType="com.bootdo.Check.domain.TbChackType">
+        SELECT
+        c.CHACK_NO as chackNo,
+        t.CHACK_TYPE as chackTyep,
+        t.VALID as valid,
+        t.CREDIT_LINE as creditLine
+        FROM
+        TB_CHACK AS c
+        LEFT JOIN ioustest.TB_CHACK_TYPE AS t ON c.CHACK_TYPE = t.CHACK_TYPE
+        where c.VALID = '1'
+    </select>
+    <!--查询审核类型('01'.初审,'02'.复审)-->
+    <select id="selFSF" parameterType="java.util.Map" resultType="com.bootdo.Check.domain.TbChackRecord">
+		select
+		*
+		from TB_CHACK_RECORD
+		where
+		CHACK_RECORD_ID
+		in (select  MAX(CHACK_RECORD_ID) as m
+		from TB_CHACK_RECORD
+		where  CHACK_NO=#{chackNo} group by  type )
+		and
+		type=#{type}
+	</select>
+    <!--审核总览Excel下载-->
+    <select id="CheExcelOnes" resultType="java.util.HashMap">
+        select
+        ch.CHACK_NO AS chackNo,
+        info.REALNAME AS realname,
+        m.MOBILE as mobile,
+        ch.CHACK_TYPE AS chackType,
+        ch.CHACK_STATE AS chackState,
+        ch.APPLY_TIME AS applyTime,
+        ch.LAST_TIME AS lastTime,
+        ch.CHACK_RESULT AS chackResult,
+        ch.VALID AS valid,
+        record.CHACK_TIME AS `time`,
+        record.RESULT AS result,
+        record.CHACK_NAME AS `name`,
+        record.IS_SYSTEM as isSystem,
+        records.CHACK_TIME AS times,
+        records.RESULT AS results,
+        records.CHACK_NAME AS `names`,
+        records.IS_SYSTEM as isSystems
+        from TB_CHACK as ch
+        LEFT JOIN TB_ACCOUNT_INFO AS info ON ch.ACCOUNT_NO = info.ACCOUNT_NO
+        LEFT JOIN TB_USER AS m ON m.USER_ID = ch.USER_ID
+        left JOIN (
+        select CHACK_TIME,RESULT,CHACK_NAME,CHACK_NO,IS_SYSTEM from TB_CHACK_RECORD where TYPE = '01'
+        )AS record ON ch.CHACK_NO = record.CHACK_NO
+        left JOIN (
+        select CHACK_TIME,RESULT,CHACK_NAME,CHACK_NO,IS_SYSTEM from TB_CHACK_RECORD where TYPE = '02'
+        ) AS records ON ch.CHACK_NO = records.CHACK_NO
+        <where>
+            <if test="realname != null and realname !=''">
+                and info.REALNAME like #{realname}
+            </if>
+            <if test="mobile != null and  mobile !=''">
+                and m.MOBILE like #{mobile}
+            </if>
+            <if test="chackNo != null and  chackNo !=''">
+                and ch.CHACK_NO = #{CHACK_NO}
+            </if>
+            <if test="chackType != null and chackType !=''">
+                and ch.CHACK_TYPE = #{chackType}
+            </if>
+            <if test="applyTimeStart != null and applyTimeStart !=''">
+                <![CDATA[ and ch.APPLY_TIME >= #{applyTimeStart}  ]]>
+            </if>
+            <if test="applyTimeEnd != null and  applyTimeEnd !=''">
+                <![CDATA[ and ch.APPLY_TIME <= date_add(#{applyTimeEnd}, interval 1 day)]]>
+            </if>
+            <if test="lastTimeStart != null and  lastTimeStart !=''">
+                <![CDATA[ and ch.LAST_TIME >= #{lastTimeStart}  ]]>
+            </if>
+            <if test="lastTimeEnd != null and  lastTimeEnd !=''">
+                <![CDATA[ and ch.LAST_TIME <= date_add(#{lastTimeEnd}, interval 1 day)]]>
+            </if>
+            <if test="chackResult != null and  chackResult !=''">
+                and ch.CHACK_RESULT =#{chackResult}
+            </if>
+            <if test="valid != null and  valid !=''">
+                and ch.VALID =#{valid}
+            </if>
+            <if test="chackState != null and  chackState !=''">
+                and ch.CHACK_STATE =#{chackState}
+            </if>
+            <if test="time != null and  time !=''">
+                and record.CHACK_TIME =#{time}
+            </if>
+            <if test="result != null and  result !=''">
+                and record.RESULT =#{result}
+            </if>
+            <if test="name != null and  name !=''">
+                and record.CHACK_NAME =#{name}
+            </if>
+            <if test="times != null and  times !=''">
+                and records.CHACK_TIME =#{times}
+            </if>
+            <if test="results != null and  results !=''">
+                and records.RESULT =#{results}
+            </if>
+            <if test="names != null and  names !=''">
+                and records.CHACK_NAME =#{names}
+            </if>
+            and ch.VALID = '1'
+        </where>
+        ORDER BY
+        chackNo DESC,records.CHACK_TIME  desc,record.CHACK_TIME desc
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+
+    </select>
+    <!--修改联系信息显示-->
+    <update id="updateUser" parameterType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+        update TB_USER_LINKMAN_INFO
+        <set>
+            <if test="accountNo != null and accountNo != ''" >
+                ACCOUNT_NO = #{accountNo},
+            </if>
+            <if test="realname != null and realname != ''" >
+                REALNAME = #{realname},
+            </if>
+            <if test="mobile != null and  mobile !=''">
+                MOBILE like #{mobile},
+            </if>
+            <if test="id != null and  id !=''">
+                CHACK_NO = #{chackNo},
+            </if>
+            <if test="address != null and  address !=''">
+                ADDRESS = #{address},
+            </if>
+            <if test="situation != null and  situation !=''">
+                SITUATION = #{situation}
+            </if>
+        </set>
+        WHERE ID = #{id}
+    </update>
+    <!--查询联系信息显示-->
+    <select id="userInfo" resultType="com.bootdo.Check.domain.TbUserLinkmanInfo">
+        SELECT
+        IFNULL(info.ADDRESS,'') as address,
+        info.SITUATION as situation,
+        info.REALNAME as realname,
+        info.MOBILE as mobile,
+        info.RELATION as relation,
+        chack.CHACK_NO as chackNo
+        FROM
+        TB_CHACK AS chack
+        LEFT JOIN  TB_USER_LINKMAN_INFO AS info ON chack.CHACK_NO = info.CHACK_NO
+        where chack.ACCOUNT_NO = #{accountNo} and chack.VALID = '1' and info.DATA_STATE = '1'
+    </select>
+    <!--手机运营商报告明细-->
+    <select id="queryMobileList" resultType="com.bootdo.Check.domain.TbUserMobile">
+        SELECT
+        c.CHACK_NO as chackNo ,
+        tai.CARDID as cardId,
+        c.ACCOUNT_NO as accountNo,
+        IFNULL(m.FILE_NAME, '') AS fileName,
+        IFNULL(m.FILE_PATH, '') AS filePath,
+        m.MOBILE as mobile,
+        m.DATA_TYPE as dataType,
+        m.REQUEST_URL as requesetUrl
+        FROM TB_CHACK AS c
+        INNER JOIN TB_ACCOUNT_INFO tai ON tai.ACCOUNT_NO = c.ACCOUNT_NO
+        INNER JOIN TB_USER_MOBILE AS m ON c.CHACK_NO = m.CHACK_NO
+        AND c.ACCOUNT_NO = #{accountNo}
+        AND m.RESULT_STATE = '1' AND m.DATA_STATE = '1' AND c.VALID = '1'
+        <!--SELECT
+        c.CHACK_NO as chackNo , c.ACCOUNT_NO as accountNo, IFNULL(m.FILE_NAME, '') AS fileName, IFNULL(m.FILE_PATH, '') AS filePath,
+        m.MOBILE as mobile, m.DATA_TYPE as dataType
+        FROM TB_CHACK AS c
+        INNER JOIN TB_USER_MOBILE AS m ON c.CHACK_NO = m.CHACK_NO
+        AND c.ACCOUNT_NO = #{accountNo} AND m.RESULT_STATE = 1 AND m.DATA_STATE = 1 and c.VALID = '1'-->
+    </select>
+
+    <!--添加授信记录表-->
+    <insert id="insert" parameterType="com.bootdo.Check.domain.TbChackRecord">
+		insert into
+		TB_CHACK_RECORD(
+		CHACK_NO as chackNo,
+		CHACK_ID as chackId,
+		CHACK_NAME as chackName,
+		RESULT as result,
+		OPINION as opinion,
+		IS_SYSTEM as isSystem,
+		TYPE as type)values (
+		#{chackNo},
+        #{chackId},
+        #{chackName},
+        #{result},
+        #{opinion},
+        #{isSystem},
+        #{type}
+		)
+	</insert>
+
+    <!--添加到历史表-->
+    <!--  <insert id="insertHistory" parameterType="com.bootdo.Check.domain.TbChack">
+          insert into
+
+      </insert>-->
+    <!--查找当前用户-->
+    <select id="getUser" resultType="com.bootdo.system.domain.UserDO">
+		select `user_id`,`username`,`name`,`password`,`dept_id`,`email`,`mobile`,`status`,`user_id_create`,`gmt_create`,`gmt_modified`,`sex`,`birth`,`pic_id`,`live_address`,`hobby`,`province`,`city`,`district` from sys_user where user_id = #{value}
+	</select>
+
+</mapper>

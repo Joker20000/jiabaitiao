@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.increment.dao.IncrementRuleDao">
+    <resultMap id="incrementRule" type="com.bootdo.increment.domain.TbIncrementRule">
+        <id column="rule_id" property="ruleId"></id>
+        <result column="channal_id" property="channalId"></result>
+        <result column="rule_name" property="ruleName"></result>
+        <result column="url" property="url"></result>
+        <result column="url_name" property="urlName"></result>
+        <result column="data_state" property="dataState"></result>
+        <result column="create_date" property="createDate"></result>
+        <result column="update_date" property="updateDate"></result>
+        <collection property="accountTypeRuleList" ofType="com.bootdo.increment.domain.TbAccountTypeRule"
+                    javaType="java.util.List">
+            <result column="type_id" property="typeId"></result>
+            <result column="annualized_rate" property="annualizedRate"></result>
+            <result column="data_state" property="dataState"></result>
+            <result column="rule_id" property="ruleId"></result>
+        </collection>
+    </resultMap>
+
+
+    <!--增值产品查询sql-->
+    <sql id="rule">
+        <where>
+            <if test="channalId !=null and channalId!= ''">
+                and tb_increment_rule.channal_id =#{channalId}
+            </if>
+            <if test="ruleName != null and ruleName != ''">
+                and tb_increment_rule.rule_name like '${ruleName}%'
+            </if>
+        </where>
+    </sql>
+    <!--    增值产品查询-->
+    <select id="selectIncrementRuleList" resultMap="incrementRule">
+        SELECT
+        tb_increment_rule.rule_id,
+        tb_increment_rule.channal_id,
+        tb_increment_rule.rule_name,
+        tb_increment_rule.url_name,
+        tb_increment_rule.url
+        FROM
+        tb_increment_rule
+        <include refid="rule"></include>
+        order by tb_increment_rule.create_date desc
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+    <!--    增值产品查询count-->
+    <select id="selectIncrementRuleCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        tb_increment_rule
+        <include refid="rule"></include>
+    </select>
+
+
+    <!--    个人增值持有限额和增值产品总限额查询-->
+    <select id="selectIncrementParameter" resultType="com.bootdo.increment.domain.TbIncrementParameter">
+        select
+        tb_increment_parameter.user_valur_max,
+        tb_increment_parameter.productes_max
+        from
+        tb_increment_parameter
+    </select>
+</mapper>

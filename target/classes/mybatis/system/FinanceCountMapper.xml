@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bootdo.system.dao.FinanceCountDao">
+
+	<select id="get" resultType="com.bootdo.system.domain.FinanceCountDO">
+		select `COUNT_ID`,`COUNT_DATE`,`LOAN_AMOUNT`,`READY_AMOUNT`,`WAIT_AMOUNT`,`ESTIMATED_REVENUE`,`REAL_INCOME`,`ADD_LOAN_AMOUNT`,`ADD_READY_AMOUNT`,`ADD_ESTIMATED_REVENUE`,`ADD_REAL_INCOME`,`CREATE_TIME` from TB_FINANCE_COUNT where COUNT_ID = #{value}
+	</select>
+
+	<select id="list" resultType="com.bootdo.system.domain.FinanceCountDO">
+		select `COUNT_ID`,`COUNT_DATE`,`LOAN_AMOUNT`,`READY_AMOUNT`,`WAIT_AMOUNT`,`ESTIMATED_REVENUE`,`REAL_INCOME`,`ADD_LOAN_AMOUNT`,`ADD_READY_AMOUNT`,`ADD_ESTIMATED_REVENUE`,`ADD_REAL_INCOME`,`CREATE_TIME` from TB_FINANCE_COUNT
+        <where>  
+		  		  <if test="countId != null and countId != ''"> and COUNT_ID = #{countId} </if>
+		  		  <if test="countDate != null and countDate != ''"> and COUNT_DATE = #{countDate} </if>
+		  		  <if test="loanAmount != null and loanAmount != ''"> and LOAN_AMOUNT = #{loanAmount} </if>
+		  		  <if test="readyAmount != null and readyAmount != ''"> and READY_AMOUNT = #{readyAmount} </if>
+		  		  <if test="waitAmount != null and waitAmount != ''"> and WAIT_AMOUNT = #{waitAmount} </if>
+		  		  <if test="estimatedRevenue != null and estimatedRevenue != ''"> and ESTIMATED_REVENUE = #{estimatedRevenue} </if>
+		  		  <if test="realIncome != null and realIncome != ''"> and REAL_INCOME = #{realIncome} </if>
+		  		  <if test="addLoanAmount != null and addLoanAmount != ''"> and ADD_LOAN_AMOUNT = #{addLoanAmount} </if>
+		  		  <if test="addReadyAmount != null and addReadyAmount != ''"> and ADD_READY_AMOUNT = #{addReadyAmount} </if>
+		  		  <if test="addEstimatedRevenue != null and addEstimatedRevenue != ''"> and ADD_ESTIMATED_REVENUE = #{addEstimatedRevenue} </if>
+		  		  <if test="addRealIncome != null and addRealIncome != ''"> and ADD_REAL_INCOME = #{addRealIncome} </if>
+		  		  <if test="createTime != null and createTime != ''"> and CREATE_TIME = #{createTime} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by COUNT_ID desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from TB_FINANCE_COUNT
+		 <where>  
+		  		  <if test="countId != null and countId != ''"> and COUNT_ID = #{countId} </if>
+		  		  <if test="countDate != null and countDate != ''"> and COUNT_DATE = #{countDate} </if>
+		  		  <if test="loanAmount != null and loanAmount != ''"> and LOAN_AMOUNT = #{loanAmount} </if>
+		  		  <if test="readyAmount != null and readyAmount != ''"> and READY_AMOUNT = #{readyAmount} </if>
+		  		  <if test="waitAmount != null and waitAmount != ''"> and WAIT_AMOUNT = #{waitAmount} </if>
+		  		  <if test="estimatedRevenue != null and estimatedRevenue != ''"> and ESTIMATED_REVENUE = #{estimatedRevenue} </if>
+		  		  <if test="realIncome != null and realIncome != ''"> and REAL_INCOME = #{realIncome} </if>
+		  		  <if test="addLoanAmount != null and addLoanAmount != ''"> and ADD_LOAN_AMOUNT = #{addLoanAmount} </if>
+		  		  <if test="addReadyAmount != null and addReadyAmount != ''"> and ADD_READY_AMOUNT = #{addReadyAmount} </if>
+		  		  <if test="addEstimatedRevenue != null and addEstimatedRevenue != ''"> and ADD_ESTIMATED_REVENUE = #{addEstimatedRevenue} </if>
+		  		  <if test="addRealIncome != null and addRealIncome != ''"> and ADD_REAL_INCOME = #{addRealIncome} </if>
+		  		  <if test="createTime != null and createTime != ''"> and CREATE_TIME = #{createTime} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.bootdo.system.domain.FinanceCountDO" useGeneratedKeys="true" keyProperty="countId">
+		insert into TB_FINANCE_COUNT
+		(
+			`COUNT_DATE`, 
+			`LOAN_AMOUNT`, 
+			`READY_AMOUNT`, 
+			`WAIT_AMOUNT`, 
+			`ESTIMATED_REVENUE`, 
+			`REAL_INCOME`, 
+			`ADD_LOAN_AMOUNT`, 
+			`ADD_READY_AMOUNT`, 
+			`ADD_ESTIMATED_REVENUE`, 
+			`ADD_REAL_INCOME`, 
+			`CREATE_TIME`
+		)
+		values
+		(
+			#{countDate}, 
+			#{loanAmount}, 
+			#{readyAmount}, 
+			#{waitAmount}, 
+			#{estimatedRevenue}, 
+			#{realIncome}, 
+			#{addLoanAmount}, 
+			#{addReadyAmount}, 
+			#{addEstimatedRevenue}, 
+			#{addRealIncome}, 
+			#{createTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.bootdo.system.domain.FinanceCountDO">
+		update TB_FINANCE_COUNT 
+		<set>
+			<if test="countDate != null">`COUNT_DATE` = #{countDate}, </if>
+			<if test="loanAmount != null">`LOAN_AMOUNT` = #{loanAmount}, </if>
+			<if test="readyAmount != null">`READY_AMOUNT` = #{readyAmount}, </if>
+			<if test="waitAmount != null">`WAIT_AMOUNT` = #{waitAmount}, </if>
+			<if test="estimatedRevenue != null">`ESTIMATED_REVENUE` = #{estimatedRevenue}, </if>
+			<if test="realIncome != null">`REAL_INCOME` = #{realIncome}, </if>
+			<if test="addLoanAmount != null">`ADD_LOAN_AMOUNT` = #{addLoanAmount}, </if>
+			<if test="addReadyAmount != null">`ADD_READY_AMOUNT` = #{addReadyAmount}, </if>
+			<if test="addEstimatedRevenue != null">`ADD_ESTIMATED_REVENUE` = #{addEstimatedRevenue}, </if>
+			<if test="addRealIncome != null">`ADD_REAL_INCOME` = #{addRealIncome}, </if>
+			<if test="createTime != null">`CREATE_TIME` = #{createTime}</if>
+		</set>
+		where COUNT_ID = #{countId}
+	</update>
+	
+	<delete id="remove">
+		delete from TB_FINANCE_COUNT where COUNT_ID = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from TB_FINANCE_COUNT where COUNT_ID in 
+		<foreach item="countId" collection="array" open="(" separator="," close=")">
+			#{countId}
+		</foreach>
+	</delete>
+
+</mapper>

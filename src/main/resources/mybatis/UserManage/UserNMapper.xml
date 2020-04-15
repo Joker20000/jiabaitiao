@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.User.dao.UserNDao">
+
+	<resultMap type="com.bootdo.User.domain.UserN" id="UserResult">
+		<result property="id" column="id"/>
+		<result property="userName" column="userName"/>
+		<result property="password" column="password"/>
+		<result property="trueName" column="trueName"/>
+		<result property="email" column="email"/>
+		<result property="phone" column="phone"/>
+		<result property="roleName" column="roleName"/>
+	</resultMap>
+	
+	<select id="login" parameterType="com.bootdo.User.domain.UserN" resultMap="UserResult">
+		select * from t_user where userName=#{userName} and password=#{password} and roleName=#{roleName}
+	</select>
+	
+	<select id="findUser" parameterType="Map" resultMap="UserResult">
+		select * from t_user
+		<where>
+		    <if test="userName!=null and userName!='' ">
+				and userName like #{userName}
+			</if>
+			<if test="roleName!=null and roleName!='' ">
+				and roleName = #{roleName}
+			</if>
+		</where>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="getTotalUser" parameterType="Map" resultType="Long">
+		select count(*) from t_user
+		<where>
+		    <if test="userName!=null and userName!='' ">
+				and userName like #{userName}
+			</if>
+			<if test="roleName!=null and roleName!='' ">
+				and roleName = #{roleName}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addUser" parameterType="com.bootdo.User.domain.UserN">
+		insert into t_user values(null,#{userName},#{password},#{trueName},#{email},#{phone},#{roleName})
+	</insert>
+	
+	<update id="updateUser" parameterType="com.bootdo.User.domain.UserN" >
+		update t_user
+		<set>
+			<if test="userName!=null and userName!='' ">
+				userName=#{userName},
+			</if>
+			<if test="password!=null and password!='' ">
+				password=#{password},
+			</if>
+			<if test="trueName!=null and trueName!='' ">
+				trueName=#{trueName},
+			</if>
+			<if test="email!=null and email!='' ">
+				email=#{email},
+			</if>
+			<if test="phone!=null and phone!='' ">
+				phone=#{phone},
+			</if>
+			<if test="roleName!=null and roleName!='' ">
+				roleName=#{roleName},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deleteUser" parameterType="Integer">
+		delete from t_user where id=#{id}
+	</delete>
+	
+	
+	
+	
+	
+	<select id="findUserByCondition"  parameterType="map" resultType="com.bootdo.UserManage.domain.UserJBT" >
+			select
+		t.COMPANY_ID   as "companyId",
+		t.COMPANY_NAME as "companyName",
+		ti.REALNAME     as "realName",
+		t.EMAIL        as "email",
+		ti.PROVE_STATE    as "userState",
+		t.USER_ID      as "userId"
+		from TB_USER t
+		LEFT JOIN TB_ACT_USER_ACCOUNT ta ON ta.USER_ID = t.USER_ID
+		LEFT JOIN TB_ACT_ACCOUNT_REL tr ON tr.ACCOUNT_ID = ta.ACCOUNT_ID
+		LEFT JOIN TB_ACCOUNT_INFO ti ON ti.ACCOUNT_NO = tr.ACCOUNT_NO
+		where t.USER_ID NOT IN (SELECT USER_ID FROM TB_BLACKLIST WHERE STATE = 1)
+		AND t.USER_ID IN (SELECT USER_ID FROM TB_ACCOUNT_INFO)
+		   <if test="companyName!=null and companyName!='' ">
+				and t.COMPANY_NAME like #{companyName}
+			</if>
+			<if test="email!=null and email!='' ">
+				and t.email like #{email}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+	
+		<select id="findUserByConditionCount"  parameterType="map" resultType="Long" >
+			select
+			count(*)
+			from TB_USER t
+			LEFT JOIN TB_ACT_USER_ACCOUNT ta ON ta.USER_ID = t.USER_ID
+			LEFT JOIN TB_ACT_ACCOUNT_REL tr ON tr.ACCOUNT_ID = ta.ACCOUNT_ID
+			LEFT JOIN TB_ACCOUNT_INFO ti ON ti.ACCOUNT_NO = tr.ACCOUNT_NO
+			where t.USER_ID NOT IN (SELECT USER_ID FROM TB_BLACKLIST WHERE STATE = 1)
+			AND t.USER_ID IN (SELECT USER_ID FROM TB_ACCOUNT_INFO)
+		   <if test="companyName!=null and companyName!='' ">
+				and t.COMPANY_NAME like #{companyName}
+			</if>
+			<if test="email!=null and email!='' ">
+				and t.email like #{email}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+		        
+	</select>
+	
+	
+	
+</mapper> 

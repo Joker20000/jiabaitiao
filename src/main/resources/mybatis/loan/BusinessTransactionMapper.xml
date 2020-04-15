@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bootdo.Loan.dao.BusinessTransactionDao">
+
+    <insert id="insertFlow" parameterType="com.bootdo.Loan.domain.TradingFlowEntity">
+        INSERT INTO TB_ACT_TRADING_FLOW
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="flowId != null">
+                FLOW_ID,
+            </if>
+            <if test="channel != null">
+                CHANNEL,
+            </if>
+            <if test="relatedFlowId != null">
+                RELATED_FLOW_ID,
+            </if>
+            <if test="bizid != null">
+                BIZID,
+            </if>
+            <if test="channelBizid != null">
+                CHANNEL_BIZID,
+            </if>
+            <if test="transDate != null">
+                TRANS_DATE,
+            </if>
+            <if test="transTime != null">
+                TRANS_TIME,
+            </if>
+            <if test="transType != null">
+                TRANS_TYPE,
+            </if>
+            <if test="userId != null">
+                USER_ID,
+            </if>
+            <if test="accountId != null">
+                ACCOUNT_ID,
+            </if>
+            <if test="type != null">
+                TYPE,
+            </if>
+            <if test="accountNo != null">
+                ACCOUNT_NO,
+            </if>
+            <if test="amount != null">
+                AMOUNT,
+            </if>
+            <if test="addAndSubtract != null">
+                ADD_AND_SUBTRACT,
+            </if>
+            <if test="balance != null">
+                BALANCE,
+            </if>
+            <if test="creditLimit != null">
+                CREDIT_LIMIT,
+            </if>
+            <if test="usableLimit != null">
+                USABLE_LIMIT,
+            </if>
+            <if test="tradingState != null">
+                TRADING_STATE,
+            </if>
+            <if test="refundAmount != null">
+                REFUND_AMOUNT,
+            </if>
+            RECEIVE_TIME,
+            LAST_TIME,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="flowId != null">
+                #{flowId},
+            </if>
+            <if test="channel != null">
+                #{channel},
+            </if>
+            <if test="relatedFlowId != null">
+                #{relatedFlowId},
+            </if>
+            <if test="bizid != null">
+                #{bizid},
+            </if>
+            <if test="channelBizid != null">
+                #{channelBizid},
+            </if>
+            <if test="transDate != null">
+                #{transDate},
+            </if>
+            <if test="transTime != null">
+                #{transTime},
+            </if>
+            <if test="transType != null">
+                #{transType},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="accountId != null">
+                #{accountId},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="accountNo != null">
+                #{accountNo},
+            </if>
+            <if test="amount != null">
+                #{amount},
+            </if>
+            <if test="addAndSubtract != null">
+                #{addAndSubtract},
+            </if>
+            <if test="balance != null">
+                #{balance},
+            </if>
+            <if test="creditLimit != null">
+                #{creditLimit},
+            </if>
+            <if test="usableLimit != null">
+                #{usableLimit},
+            </if>
+            <if test="tradingState != null">
+                #{tradingState},
+            </if>
+            <if test="refundAmount != null">
+                #{refundAmount},
+            </if>
+            SYSDATE(),
+            SYSDATE(),
+        </trim>
+    </insert>
+
+</mapper>

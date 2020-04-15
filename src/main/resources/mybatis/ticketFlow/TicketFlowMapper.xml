@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bootdo.TicketFlow.dao.TicketFlowDao">
+
+    <select id="findTicketFlow" parameterType="Map" resultType="com.bootdo.TicketFlow.domain.TicketFlow">
+        SELECT b.TICKET_FLOW_ID as ticketFlowId,
+        b.TICKET_FLOW_TYPE as ticketFlowType,
+        b.BT_ORDER_NO as btOrderNo,
+        b.TICKET_TRANSACTION_STATE as ticketTransactionState,
+        b.TICKET_TRANSACTION_FLOW as ticketTransactionFlow,
+        b.TICKET_NO as ticketNo,
+        b.TRANSACTION_TIME as transactionTime,
+        t.ORDER_STATE AS orderState
+        FROM `TB_TICKET_FLOW` as b,TB_LOAN_ORDER as t WHERE t.LOAN_ORDER_NO=b.BT_ORDER_NO
+        <if test="btOrderNo!=null and btOrderNo!='' ">
+            and b.BT_ORDER_NO like #{btOrderNo}
+        </if>
+        <if test="ticketTransactionFlow!=null and ticketTransactionFlow!='' ">
+            and b.TICKET_TRANSACTION_FLOW like #{ticketTransactionFlow}
+        </if>
+        <if test="ticketFlowType!=null and ticketFlowType!='' ">
+            and b.TICKET_FLOW_TYPE = #{ticketFlowType}
+        </if>
+        <if test="ticketTransactionState!=null and ticketTransactionState!='' ">
+            and b.TICKET_TRANSACTION_STATE = #{ticketTransactionState}
+        </if>
+        <if test="ticketNo!=null and ticketNo!='' ">
+            and b.TICKET_NO like #{ticketNo}
+        </if>
+        <if test="finishTimeStart!=null and finishTimeStart!='' ">
+            <![CDATA[ and b.TRANSACTION_TIME >= #{finishTimeStart}  ]]>
+        </if>
+        <if test="finishTimeEnd!=null and finishTimeEnd!='' ">
+            <![CDATA[ and b.TRANSACTION_TIME <= date_add(#{finishTimeEnd}, interval 1 day)]]>
+        </if>
+        ORDER BY b.TRANSACTION_TIME DESC
+        <if test="offset!=null and limit!=null">
+            limit #{offset},#{limit}
+        </if>
+    </select>
+
+    <select id="findTicketFlowListMap" parameterType="Map" resultType="java.util.HashMap">
+        SELECT b.TICKET_FLOW_ID as ticketFlowId,
+        b.TICKET_FLOW_TYPE as ticketFlowType,
+        b.BT_ORDER_NO as btOrderNo,
+        b.TICKET_TRANSACTION_STATE as ticketTransactionState,
+        b.TICKET_TRANSACTION_FLOW as ticketTransactionFlow,
+        b.TICKET_NO as ticketNo,
+        b.TRANSACTION_TIME as transactionTime,
+        t.ORDER_STATE AS orderState
+        FROM `TB_TICKET_FLOW` as b,TB_LOAN_ORDER as t WHERE t.LOAN_ORDER_NO=b.BT_ORDER_NO
+        <if test="btOrderNo!=null and btOrderNo!='' ">
+            and b.BT_ORDER_NO like #{btOrderNo}
+        </if>
+        <if test="ticketTransactionFlow!=null and ticketTransactionFlow!='' ">
+            and b.TICKET_TRANSACTION_FLOW like #{ticketTransactionFlow}
+        </if>
+        <if test="ticketFlowType!=null and ticketFlowType!='' ">
+            and b.TICKET_FLOW_TYPE = #{ticketFlowType}
+        </if>
+        <if test="ticketTransactionState!=null and ticketTransactionState!='' ">
+            and b.TICKET_TRANSACTION_STATE = #{ticketTransactionState}
+        </if>
+        <if test="ticketNo!=null and ticketNo!='' ">
+            and b.TICKET_NO like #{ticketNo}
+        </if>
+        <if test="finishTimeStart!=null and finishTimeStart!='' ">
+            <![CDATA[ and b.TRANSACTION_TIME >= #{finishTimeStart} ]]>
+        </if>
+        <if test="finishTimeEnd!=null and finishTimeEnd!='' ">
+            <![CDATA[ and b.TRANSACTION_TIME <= date_add(#{finishTimeEnd}, interval 1 day)]]>
+        </if>
+        ORDER BY b.TRANSACTION_TIME DESC
+        <if test="offset!=null and limit!=null">
+            limit #{offset},#{limit}
+        </if>
+    </select>
+
+    <select id="findTicketFlowCount" parameterType="Map" resultType="Long">
+        select count(*) FROM `TB_TICKET_FLOW` as b,TB_LOAN_ORDER as t WHERE t.LOAN_ORDER_NO=b.BT_ORDER_NO
+        <if test="btOrderNo!=null and btOrderNo!='' ">
+            and b.BT_ORDER_NO like #{btOrderNo}
+        </if>
+        <if test="ticketTransactionFlow!=null and ticketTransactionFlow!='' ">
+            and b.TICKET_TRANSACTION_FLOW like #{ticketTransactionFlow}
+        </if>
+        <if test="ticketFlowType!=null and ticketFlowType!='' ">
+            and b.TICKET_FLOW_TYPE = #{ticketFlowType}
+        </if>
+        <if test="ticketTransactionState!=null and ticketTransactionState!='' ">
+            and b.TICKET_TRANSACTION_STATE = #{ticketTransactionState}
+        </if>
+        <if test="ticketNo!=null and ticketNo!='' ">
+            and b.TICKET_NO = #{ticketNo}
+        </if>
+        <if test="finishTimeStart!=null and finishTimeStart!='' ">
+            <![CDATA[ and b.TRANSACTION_TIME >= #{finishTimeStart} ]]>
+        </if>
+        <if test="proveSubmitTime1!=null and proveSubmitTime1!='' ">
+            <![CDATA[ and b.TRANSACTION_TIME <= date_add(#{finishTimeEnd}, interval 1 day)]]>
+        </if>
+        ORDER BY b.TRANSACTION_TIME DESC
+       <!-- <if test="offset!=null and limit!=null">
+            limit #{offset},#{limit}
+        </if>-->
+    </select>
+
+    <select id="findTicket" parameterType="Map" resultType="com.bootdo.TicketFlow.domain.Ticket">
+        SELECT TICKET_NO as ticketNo,
+        VALIDITY_START as validityStart,
+        VALIDITY_END as validityEnd,
+        TICKET_TYPE as ticketType,
+        LOAN_MONEY as loanMoney,
+        GRACE_PERIOD as gracePeriod  FROM `TB_TICKET` where 1=1
+        <if test="ticketNo!=null and ticketNo!='' ">
+            and TICKET_NO like #{ticketNo}
+        </if>
+        <if test="offset!=null and limit!=null">
+            limit #{offset},#{limit}
+        </if>
+    </select>
+    <select id="findTicketCount" parameterType="Map" resultType="Long">
+        SELECT count(*) FROM `TB_TICKET` where 1=1
+        <if test="ticketNo!=null and ticketNo!='' ">
+            and TICKET_NO like #{ticketNo}
+        </if>
+        <!--<if test="offset!=null and limit!=null">
+            limit #{offset},#{limit}
+        </if>-->
+    </select>
+
+</mapper>

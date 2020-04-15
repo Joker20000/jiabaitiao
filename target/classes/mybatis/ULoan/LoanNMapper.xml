@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bootdo.ULoan.dao.LoanCDao">
+	<select id="findUserList" parameterType="Map" resultType="com.bootdo.UserManage.domain.UserJBT">
+		select
+		t.USER_ID as userId,
+		ta.REALNAME as realName,
+		t.MOBILE as mobile,
+		t.EMAIL as email,
+		t.USER_CHANNEL_ID as userChannelId,
+		t.COMPANY_ID as companyId,
+		t.COMPANY_NAME as companyName,
+		ta.CARDID as cardid,
+		ta.PROVE_STATE as proveState,
+		t.REGISTER_TIME as register,
+		ta.CREATE_TIME as proveSubmitTime,
+		ta.LAST_TIME as proveAuditTime,
+        ta.IS_GUARANTEE_CARD as isGuaranteeCard
+		from TB_USER t
+		LEFT JOIN TB_ACT_USER_ACCOUNT tc ON t.USER_ID=tc.USER_ID
+		LEFT JOIN TB_ACT_ACCOUNT_REL tr ON tr.ACCOUNT_ID=tc.ACCOUNT_ID
+		LEFT JOIN TB_ACCOUNT_INFO ta ON tr.ACCOUNT_NO=ta.ACCOUNT_NO
+		WHERE 1=1
+			<if test="realName!=null and realName!='' ">
+				and ta.REALNAME like #{realName}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and t.MOBILE like #{mobile}
+			</if>
+			<if test="email!=null and email!='' ">
+				and t.EMAIL like #{email}
+			</if>
+			<if test="companyName!=null and companyName!='' ">
+				and t.COMPANY_NAME like #{companyName}
+			</if>
+		   <if test="isGuaranteeCard!=null and isGuaranteeCard!='' ">
+		     	and ta.IS_GUARANTEE_CARD = #{isGuaranteeCard}
+		     </if>
+			<if test="userChannelId!=null and userChannelId!='' ">
+				and t.USER_CHANNEL_ID like #{userChannelId}
+			</if>
+			<if test="proveState==0 and proveState!='' ">
+				and (ta.PROVE_STATE IS NULL or ta.PROVE_STATE = '0')
+			</if>
+			<if test="proveState!=0 and proveState!='' ">
+				and ta.PROVE_STATE = #{proveState}
+			</if>
+			<if test="register!=null and register!='' ">
+				<![CDATA[ and t.REGISTER_TIME >= #{register} ]]>
+			</if>
+			<if test="register1!=null and register1!='' ">
+				<![CDATA[ and t.REGISTER_TIME <= date_add(#{register1}, interval 1 day)]]>
+			</if>
+			<if test="proveSubmitTime!=null and proveSubmitTime!='' ">
+				<![CDATA[ and ta.CREATE_TIME >= #{proveSubmitTime} ]]>
+			</if>
+			<if test="proveSubmitTime1!=null and proveSubmitTime1!='' ">
+				<![CDATA[ and ta.CREATE_TIME <= date_add(#{proveSubmitTime1}, interval 1 day)]]>
+			</if>
+			<if test="proveAuditTime!=null and proveAuditTime!='' ">
+				<![CDATA[ and ta.LAST_TIME >= #{proveAuditTime} ]]>
+			</if>
+			<if test="proveAuditTime1!=null and proveAuditTime1!='' ">
+				<![CDATA[ and ta.LAST_TIME <= date_add(#{proveAuditTime1}, interval 1 day)]]>
+			</if>
+			GROUP BY t.USER_ID
+			ORDER BY t.REGISTER_TIME DESC
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<select id="findUserListN" parameterType="Map" resultType="java.util.HashMap">
+		select
+		t.USER_ID as userId,
+		IFNULL(ta.REALNAME, '') as realName,
+		t.MOBILE as mobile,
+		t.EMAIL as email,
+		t.USER_CHANNEL_ID as userChannelId,
+		t.COMPANY_ID as companyId,
+		t.COMPANY_NAME as companyName,
+		IFNULL(ta.CARDID, '') as cardid,
+		IFNULL(t.REGISTER_TIME, '') as register,
+		IFNULL(ta.CREATE_TIME, '') as proveSubmitTime,
+		IFNULL(ta.LAST_TIME, '') as proveAuditTime,
+		case when ta.PROVE_STATE = '0' then '未认证' when ta.PROVE_STATE = '1' then '已认证' when ta.PROVE_STATE = '2' then '认证中' when ta.PROVE_STATE = '3' then '审核中' when ta.PROVE_STATE = '4' then '未通过' else '未认证' end as proveState,
+		case when t.USER_CHANNEL_ID = '01' then '嘉福平台' when t.USER_CHANNEL_ID = '02' then '嘉薪平台' when t.USER_CHANNEL_ID = '03' then '智慧嘉'  else t.USER_CHANNEL_ID end as channel,
+		case when ta.IS_GUARANTEE_CARD = '1' then '已开通'  else '未开通'  end as isGuaranteeCard
+		from TB_USER t
+		LEFT JOIN TB_ACT_USER_ACCOUNT tc ON t.USER_ID=tc.USER_ID
+		LEFT JOIN TB_ACT_ACCOUNT_REL tr ON tr.ACCOUNT_ID=tc.ACCOUNT_ID
+		LEFT JOIN TB_ACCOUNT_INFO ta ON tr.ACCOUNT_NO=ta.ACCOUNT_NO
+		WHERE 1=1
+		<if test="realName!=null and realName!='' ">
+			and ta.REALNAME like #{realName}
+		</if>
+		<if test="mobile!=null and mobile!='' ">
+			and t.MOBILE like #{mobile}
+		</if>
+		<if test="email!=null and email!='' ">
+			and t.EMAIL like #{email}
+		</if>
+		<if test="companyName!=null and companyName!='' ">
+			and t.COMPANY_NAME like #{companyName}
+		</if>
+		<if test="userChannelId!=null and userChannelId!='' ">
+			and t.USER_CHANNEL_ID like #{userChannelId}
+		</if>
+		<if test="proveState==0 and proveState!='' ">
+			and (ta.PROVE_STATE IS NULL or ta.PROVE_STATE = '0')
+		</if>
+		<if test="proveState!=0 and proveState!='' ">
+			and ta.PROVE_STATE = #{proveState}
+		</if>
+		<if test="isGuaranteeCard!=null and isGuaranteeCard!='' ">
+			and ta.IS_GUARANTEE_CARD = #{isGuaranteeCard}
+		</if>
+		<if test="register!=null and register!='' ">
+			<![CDATA[ and t.REGISTER_TIME >= #{register} ]]>
+		</if>
+		<if test="register1!=null and register1!='' ">
+			<![CDATA[ and t.REGISTER_TIME <= date_add(#{register1}, interval 1 day)]]>
+		</if>
+		<if test="proveSubmitTime!=null and proveSubmitTime!='' ">
+			<![CDATA[ and ta.CREATE_TIME >= #{proveSubmitTime} ]]>
+		</if>
+		<if test="proveSubmitTime1!=null and proveSubmitTime1!='' ">
+			<![CDATA[ and ta.CREATE_TIME <= date_add(#{proveSubmitTime1}, interval 1 day)]]>
+		</if>
+		<if test="proveAuditTime!=null and proveAuditTime!='' ">
+			<![CDATA[ and ta.LAST_TIME >= #{proveAuditTime} ]]>
+		</if>
+		<if test="proveAuditTime1!=null and proveAuditTime1!='' ">
+			<![CDATA[ and ta.LAST_TIME <= date_add(#{proveAuditTime1}, interval 1 day)]]>
+		</if>
+		GROUP BY t.USER_ID
+		ORDER BY t.REGISTER_TIME DESC
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+
+	<select id="getTotalUserList" parameterType="Map" resultType="Long">
+		select count(*) from(
+		select
+		count(*)
+		from TB_USER t
+		LEFT JOIN TB_ACT_USER_ACCOUNT tc ON t.USER_ID=tc.USER_ID
+		LEFT JOIN TB_ACT_ACCOUNT_REL tr ON tr.ACCOUNT_ID=tc.ACCOUNT_ID
+		LEFT JOIN TB_ACCOUNT_INFO ta ON tr.ACCOUNT_NO=ta.ACCOUNT_NO
+		WHERE 1=1
+		<if test="realName!=null and realName!='' ">
+			and ta.REALNAME like #{realName}
+		</if>
+		<if test="mobile!=null and mobile!='' ">
+			and t.MOBILE like #{mobile}
+		</if>
+		<if test="email!=null and email!='' ">
+			and t.EMAIL like #{email}
+		</if>
+		<if test="companyName!=null and companyName!='' ">
+			and t.COMPANY_NAME like #{companyName}
+		</if>
+		<if test="userChannelId!=null and userChannelId!='' ">
+			and t.USER_CHANNEL_ID like #{userChannelId}
+		</if>
+		<if test="proveState==0 and proveState!='' ">
+			and ta.PROVE_STATE IS NULL or ta.PROVE_STATE = '0'
+		</if>
+		<if test="proveState!=0 and proveState!='' ">
+			and ta.PROVE_STATE = #{proveState}
+		</if>
+		<if test="isGuaranteeCard!=null and isGuaranteeCard!='' ">
+			and ta.IS_GUARANTEE_CARD = #{isGuaranteeCard}
+		</if>
+		<if test="register!=null and register!='' ">
+			<![CDATA[ and t.REGISTER_TIME >= #{register} ]]>
+		</if>
+		<if test="register1!=null and register1!='' ">
+			<![CDATA[ and t.REGISTER_TIME <= date_add(#{register1}, interval 1 day)]]>
+		</if>
+		<if test="proveSubmitTime!=null and proveSubmitTime!='' ">
+			<![CDATA[ and ta.CREATE_TIME >= #{proveSubmitTime} ]]>
+		</if>
+		<if test="proveSubmitTime1!=null and proveSubmitTime1!='' ">
+			<![CDATA[ and ta.CREATE_TIME <= date_add(#{proveSubmitTime1}, interval 1 day)]]>
+		</if>
+		<if test="proveAuditTime!=null and proveAuditTime!='' ">
+			<![CDATA[ and ta.LAST_TIME >= #{proveAuditTime} ]]>
+		</if>
+		<if test="proveAuditTime1!=null and proveAuditTime1!='' ">
+			<![CDATA[ and ta.LAST_TIME <= date_add(#{proveAuditTime1}, interval 1 day)]]>
+		</if>
+		GROUP BY t.USER_ID)a
+	</select>
+	
+	
+	
+	<select id="findRepayPlanList" parameterType="Map" resultType="com.bootdo.RepayPalan.domain.RepayPlan">
+		select
+		t.REPAY_PLAN_NO as repayPlanNo,
+		t.LOAN_ORDER_NO  as loanOrderNo,
+		tu.COMPANY_ID  as companyId,
+		tu.COMPANY_NAME  as companyName,
+		ti.ACCOUNT_NO as accountNo,
+		ti.REALNAME  as realname,
+		tu.MOBILE  as mobile,
+		tb.ORDER_TYPE  as orderType,
+		t.NOW_PERIOD  as nowPeriod,
+		tb.PERIOD_SUM  as periodSum,
+		t.NOW_AMOUNT  as shouldAmount,
+		t.NOW_ORDER_INTEREST as shouldOrderInterest,
+		t.NOW_INTEREST as shouldInterest,
+		t.NOW_OVERDUE  as nowOverdue,
+		t.OVERDUE_DAY_RATE  as overdueDayRate,
+		(CAST(t.NOW_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))+CAST(t.NOW_OVERDUE as DECIMAL(30,2)))  as repaymentSum,
+		t.TRANSFER_COST  as transferCost,
+		t.TRANSFER_RATE  as transferRate,
+		DATE_FORMAT(t.LATEST_TIME,'%Y-%m-%d')  as latestTime,
+		(CAST(t.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_OVERDUE as DECIMAL(30,2)))  as alreadyRepaidSum,
+		'0' as refundAmount,
+		((CAST(t.NOW_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))+CAST(t.NOW_OVERDUE as DECIMAL(30,2))) - (CAST(t.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_OVERDUE as DECIMAL(30,2))))  as nowSurplusAmountSum,
+		t.REPAY_STATE as repayState,
+		t.OVERDUE_STATE as overdueState,
+		t.FULL_REPAYMENT_TIME  as fullRepaymentTime
+		from TB_REPAY_PLAN t,TB_LOAN_ORDER tb,TB_ACT_TRADING_FLOW tf,TB_USER tu,TB_ACCOUNT_INFO ti
+		where
+		t.LOAN_ORDER_NO = tb.LOAN_ORDER_NO
+		and tb.LOAN_ORDER_NO = tf.BIZID
+		and tf.USER_ID = tu.USER_ID
+		and ti.ACCOUNT_NO = tf.ACCOUNT_NO
+		<if test="repayPlanNo!=null and repayPlanNo!='' ">
+				and t.REPAY_PLAN_NO like #{repayPlanNo}
+			</if>
+			<if test="loanOrderNo!=null and loanOrderNo!='' ">
+				and t.LOAN_ORDER_NO like #{loanOrderNo}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			<if test="orderType!=null and orderType!='' ">
+				and tb.ORDER_TYPE = #{orderType}
+			</if>
+			<if test="repayState!=null and repayState!='' ">
+				and t.REPAY_STATE = #{repayState}
+			</if>
+			<if test="overdueState!=null and overdueState!='' ">
+				and t.OVERDUE_STATE = #{overdueState}
+			</if>
+			<if test="latestTimeStart!=null and latestTimeStart!='' ">
+				<![CDATA[ and t.LATEST_TIME >= #{latestTimeStart} ]]>
+			</if>
+			<if test="latestTimeEnd!=null and latestTimeEnd!='' ">
+				<![CDATA[ and t.LATEST_TIME <= date_add(#{latestTimeEnd}, interval 1 day)]]>
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE = #{mobile}
+			</if>
+			<if test="fullRepaymentTimeStart!=null and fullRepaymentTimeStart!='' ">
+				<![CDATA[ and t.FULL_REPAYMENT_TIME >= #{fullRepaymentTimeStart} ]]>
+			</if>
+			<if test="fullRepaymentTimeEnd!=null and fullRepaymentTimeEnd!='' ">
+				<![CDATA[ and t.FULL_REPAYMENT_TIME <= date_add(#{fullRepaymentTimeEnd}, interval 1 day)]]>
+			</if>
+			ORDER BY t.REPAY_STATE,t.LATEST_TIME
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	<select id="findRepayPlanListN" parameterType="Map" resultType="java.util.HashMap">
+		select
+		t.REPAY_PLAN_NO as repayPlanNo,
+		t.LOAN_ORDER_NO  as loanOrderNo,
+		tu.USER_CHANNEL_ID AS userChannelID,
+		tu.COMPANY_ID  as companyId,
+		tu.COMPANY_NAME  as companyName,
+		ti.REALNAME  as realname,
+		tu.MOBILE  as mobile,
+		tu.EMAIL  as email,
+		t.NOW_PERIOD  as nowPeriod,
+		tb.PERIOD_SUM  as periodSum,
+		t.NOW_AMOUNT  as shouldAmount,
+		t.NOW_ORDER_INTEREST as shouldOrderInterest,
+		(CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))) as shouldInterest,
+		t.NOW_OVERDUE  as nowOverdue,
+		t.OVERDUE_DAY_RATE  as overdueDayRate,
+		(CAST(t.NOW_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))+CAST(t.NOW_OVERDUE as DECIMAL(30,2)))  as repaymentSum,
+		t.TRANSFER_COST  as transferCost,
+		t.TRANSFER_RATE  as transferRate,
+		DATE_FORMAT(t.LATEST_TIME,'%Y-%m-%d')  as latestTime,
+		(CAST(t.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_OVERDUE as DECIMAL(30,2)))  as alreadyRepaidSum,
+		'0' as refundAmount,
+		((CAST(t.NOW_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))+CAST(t.NOW_OVERDUE as DECIMAL(30,2))) - (CAST(t.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_OVERDUE as DECIMAL(30,2))))  as nowSurplusAmountSum,
+		t.FULL_REPAYMENT_TIME  as fullRepaymentTime,
+		case when tb.ORDER_TYPE = '01' then '消费分期' when tb.ORDER_TYPE = '02' then '现金分期' when tb.ORDER_TYPE = '03' then '信用卡分期' when tb.ORDER_TYPE = '04' then '员工专享' else tb.ORDER_TYPE end as orderType,
+		case when tb.VIP_LEVEL IS NOT NULL then concat('VIP',tb.VIP_LEVEL) else tb.VIP_LEVEL end as vipLevel,
+		case when t.REPAY_STATE = '01' then '待还款' when t.REPAY_STATE = '02' then '还款中' when t.REPAY_STATE = '03' then '已还清' else '' end as repayState,
+		case when t.OVERDUE_STATE = '00' then '未逾期' else '已逾期' end as overdueState,
+		case when tu.USER_CHANNEL_ID = '01' then '嘉福平台' when tu.USER_CHANNEL_ID = '02' then '嘉薪平台' when tu.USER_CHANNEL_ID = '03' then '智慧嘉' else tu.USER_CHANNEL_ID end as channel,
+		case when t.REDUCTION = '0' then '否' when t.REDUCTION = '1' then '是' else t.REDUCTION end as reduction,
+		t.CC_REMARK as remark
+		from TB_REPAY_PLAN t,TB_LOAN_ORDER tb,TB_ACT_TRADING_FLOW tf,TB_USER tu,TB_ACCOUNT_INFO ti
+		where
+		t.LOAN_ORDER_NO = tb.LOAN_ORDER_NO
+		and tb.LOAN_ORDER_NO = tf.BIZID
+		and tf.USER_ID = tu.USER_ID
+		and ti.ACCOUNT_NO = tf.ACCOUNT_NO
+		<if test="repayPlanNo!=null and repayPlanNo!='' ">
+			and t.REPAY_PLAN_NO like #{repayPlanNo}
+		</if>
+		<if test="loanOrderNo!=null and loanOrderNo!='' ">
+			and t.LOAN_ORDER_NO like #{loanOrderNo}
+		</if>
+		<if test="realname!=null and realname!='' ">
+			and ti.REALNAME like #{realname}
+		</if>
+		<if test="mobile!=null and mobile!='' ">
+			and tu.MOBILE like #{mobile}
+		</if>
+		<if test="orderType!=null and orderType!='' ">
+			and tb.ORDER_TYPE = #{orderType}
+		</if>
+		<if test="repayState!=null and repayState!='' ">
+			and t.REPAY_STATE = #{repayState}
+		</if>
+		<if test="overdueState!=null and overdueState!='' ">
+			and t.OVERDUE_STATE = #{overdueState}
+		</if>
+		<if test="latestTimeStart!=null and latestTimeStart!='' ">
+			<![CDATA[ and t.LATEST_TIME >= #{latestTimeStart} ]]>
+		</if>
+		<if test="latestTimeEnd!=null and latestTimeEnd!='' ">
+			<![CDATA[ and t.LATEST_TIME <= date_add(#{latestTimeEnd}, interval 1 day)]]>
+		</if>
+		<if test="mobile!=null and mobile!='' ">
+			and tu.MOBILE = #{mobile}
+		</if>
+		<if test="fullRepaymentTimeStart!=null and fullRepaymentTimeStart!='' ">
+			<![CDATA[ and t.FULL_REPAYMENT_TIME >= #{fullRepaymentTimeStart} ]]>
+		</if>
+		<if test="fullRepaymentTimeEnd!=null and fullRepaymentTimeEnd!='' ">
+			<![CDATA[ and t.FULL_REPAYMENT_TIME <= date_add(#{fullRepaymentTimeEnd}, interval 1 day)]]>
+		</if>
+		ORDER BY t.REPAY_STATE,t.LATEST_TIME
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="getTotalRepayPlanList" parameterType="Map" resultType="Long">
+			select
+			count(*)
+			from TB_REPAY_PLAN t,TB_LOAN_ORDER tb,TB_ACT_TRADING_FLOW tf,TB_USER tu,TB_ACCOUNT_INFO ti
+			where
+			t.LOAN_ORDER_NO = tb.LOAN_ORDER_NO
+			and tb.LOAN_ORDER_NO = tf.BIZID
+			and tf.USER_ID = tu.USER_ID
+			and ti.ACCOUNT_NO = tf.ACCOUNT_NO
+			<if test="repayPlanNo!=null and repayPlanNo!='' ">
+				and t.REPAY_PLAN_NO like #{repayPlanNo}
+			</if>
+			<if test="loanOrderNo!=null and loanOrderNo!='' ">
+				and t.LOAN_ORDER_NO like #{loanOrderNo}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			<if test="orderType!=null and orderType!='' ">
+				and tb.ORDER_TYPE = #{orderType}
+			</if>
+			<if test="repayState!=null and repayState!='' ">
+				and t.REPAY_STATE = #{repayState}
+			</if>
+			<if test="overdueState!=null and overdueState!='' ">
+				and t.OVERDUE_STATE = #{overdueState}
+			</if>
+			<if test="latestTimeStart!=null and latestTimeStart!='' ">
+				<![CDATA[ and t.LATEST_TIME >= #{latestTimeStart} ]]>
+			</if>
+			<if test="latestTimeEnd!=null and latestTimeEnd!='' ">
+				<![CDATA[ and t.LATEST_TIME <= date_add(#{latestTimeEnd}, interval 1 day) ]]>
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE = #{mobile}
+			</if>
+			<if test="fullRepaymentTimeStart!=null and fullRepaymentTimeStart!='' ">
+				<![CDATA[ and t.FULL_REPAYMENT_TIME >= #{fullRepaymentTimeStart} ]]>
+			</if>
+			<if test="fullRepaymentTimeEnd!=null and fullRepaymentTimeEnd!='' ">
+				<![CDATA[ and t.FULL_REPAYMENT_TIME <= date_add(#{fullRepaymentTimeEnd}, interval 1 day)]]>
+			</if>
+	</select>
+	
+	
+	<select id="findRepayFlowList" parameterType="Map" resultType="com.bootdo.RepayFlow.domain.RepayFlow">
+		select 
+			tb.REPAY_SERIAL_NO as repaySerialNo,
+			tb.FINISH_TIME as finishTime,
+			tb.REPAY_AMOUNT_SUM as repayAmountSum,
+			t.REPAY_AMOUNT as repayAmount,
+			tb.JF_REPAY_NO as jfRepayNo,
+			tb.REPAY_TYPE as repayType,
+			tb.REPAY_FLAG as repayFlag
+			from TB_REPAY_FLOW t,TB_REPAY_RECORD tb WHERE t.REPAY_SERIAL_NO = tb.REPAY_SERIAL_NO AND t.REPAY_STATE = '1' AND tb.PAY_STATE = '1'
+			<if test="repayPlanNo!=null and repayPlanNo!='' ">
+				AND t.REPAY_PLAN_NO =  #{repayPlanNo}
+			</if>
+			ORDER BY tb.FINISH_TIME DESC
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+	<select id="getTotalRepayFlowList" parameterType="Map" resultType="Long">
+		select count(*) from TB_REPAY_FLOW t,TB_REPAY_RECORD tb WHERE t.REPAY_SERIAL_NO = tb.REPAY_SERIAL_NO AND t.REPAY_STATE = '1' AND tb.PAY_STATE = '1'
+		<if test="repayPlanNo!=null and repayPlanNo!='' ">
+			AND t.REPAY_PLAN_NO =  #{repayPlanNo}
+		</if>
+	</select>
+	
+	
+	<select id="findAccounTtradingList" parameterType="Map" resultType="com.bootdo.AccounTtrading.domain.AccounTtrading">
+		select t.FLOW_ID  as flowId,
+		tb.COMPANY_ID as companyId,
+		tb.COMPANY_NAME as companyName,
+		ta.REALNAME  as realName,
+		tb.EMAIL  as email,
+		tb.MOBILE  as mobile,
+		t.ADD_AND_SUBTRACT as addAndSubtract,
+		t.AMOUNT as amount,
+		t.CREDIT_LIMIT  as creditLimit,
+		t.USABLE_LIMIT  as usableLimit,
+		t.TRANS_TYPE  as transType,
+		t.BIZID as bizid,
+		t.CHANNEL_BIZID  as channelBizid,
+		t.TRANS_TIME  as transTime,
+		trr.REPAY_FLAG as repayFlag
+		from
+		TB_ACT_TRADING_FLOW t
+		LEFT JOIN TB_USER tb ON t.USER_ID = tb.USER_ID
+		LEFT JOIN TB_ACCOUNT_INFO ta ON t.ACCOUNT_NO = ta.ACCOUNT_NO
+		LEFT JOIN TB_REPAY_RECORD trr ON t.BIZID = trr.REPAY_SERIAL_NO
+		where 1=1
+		and t.ADD_AND_SUBTRACT !='03'
+		<if test="flowId!=null and flowId!='' ">
+				and t.FLOW_ID like #{flowId}
+			</if>
+			<if test="channelBizid!=null and channelBizid!='' ">
+				and t.CHANNEL_BIZID like #{channelBizid}
+			</if>
+			<if test="bizid!=null and bizid!='' ">
+				and t.BIZID like #{bizid}
+			</if>
+			<if test="transType!=null and transType!='' ">
+				and t.TRANS_TYPE like #{transType}
+			</if>
+			<if test="realName!=null and realName!='' ">
+				and ta.REALNAME like #{realName}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tb.MOBILE like #{mobile}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tb.EMAIL like #{email}
+			</if>
+			<if test="transTimeStart!=null and transTimeStart!='' ">
+				<![CDATA[ and t.TRANS_TIME >= #{transTimeStart} ]]>
+			</if>
+			<if test="transTimeEnd!=null and transTimeEnd!='' ">
+				<![CDATA[ and t.TRANS_TIME <= date_add(#{transTimeEnd}, interval 1 day) ]]>
+			</if>
+			 ORDER BY t.TRANS_TIME DESC
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+
+
+	<select id="getTotalAccounTtradingList" parameterType="Map" resultType="Long">
+		select
+		count(*)
+		from
+		TB_ACT_TRADING_FLOW t
+		LEFT JOIN TB_USER tb ON t.USER_ID = tb.USER_ID
+		LEFT JOIN TB_ACCOUNT_INFO ta ON t.ACCOUNT_NO = ta.ACCOUNT_NO
+		LEFT JOIN TB_REPAY_RECORD trr ON t.BIZID = trr.REPAY_SERIAL_NO
+		where 1=1
+			<if test="flowId!=null and flowId!='' ">
+				and t.FLOW_ID like #{flowId}
+			</if>
+			<if test="channelBizid!=null and channelBizid!='' ">
+				and t.CHANNEL_BIZID like #{channelBizid}
+			</if>
+			<if test="bizid!=null and bizid!='' ">
+				and t.BIZID like #{bizid}
+			</if>
+			<if test="transType!=null and transType!='' ">
+				and t.TRANS_TYPE like #{transType}
+			</if>
+			<if test="realName!=null and realName!='' ">
+				and ta.REALNAME like #{realName}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tb.MOBILE like #{mobile}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tb.EMAIL like #{email}
+			</if>
+			<if test="transTimeStart!=null and transTimeStart!='' ">
+				<![CDATA[ and t.TRANS_TIME >= #{transTimeStart} ]]>
+			</if>
+			<if test="transTimeEnd!=null and transTimeEnd!='' ">
+				<![CDATA[ and t.TRANS_TIME <= date_add(#{transTimeEnd}, interval 1 day) ]]>
+			</if>
+	</select>
+
+	<select id="findAccounTtradingListN" parameterType="Map" resultType="java.util.HashMap">
+		select t.FLOW_ID  as flowId,
+		tb.COMPANY_ID as companyId,
+		tb.COMPANY_NAME as companyName,
+		ta.REALNAME  as realName,
+		tb.EMAIL  as email,
+		tb.MOBILE  as mobile,
+		t.CREDIT_LIMIT  as creditLimit,
+		t.USABLE_LIMIT  as usableLimit,
+		t.BIZID as bizid,
+		t.CHANNEL_BIZID  as channelBizid,
+		t.TRANS_TIME  as transTime,
+		CONCAT(case when t.ADD_AND_SUBTRACT = '01' then '+' when t.ADD_AND_SUBTRACT = '02' then '-' else t.ADD_AND_SUBTRACT end,t.AMOUNT) as amount,
+		case when t.TRANS_TYPE = '11' then '主动还款' when t.TRANS_TYPE = '12' then '系统代扣' when t.TRANS_TYPE = '21' then '消费分期' when t.TRANS_TYPE = '31' then '现金分期' when t.TRANS_TYPE = '32' then '信用卡分期' when t.TRANS_TYPE = '33' then '员工专享' when t.TRANS_TYPE = '41' then '消费退款'  when t.TRANS_TYPE = '42' then '信用卡退款' when t.TRANS_TYPE = '51' then '授信' when t.TRANS_TYPE = '52' then '自动认证' when t.TRANS_TYPE = '53' then '联系人授信' when t.TRANS_TYPE = '54' then '手机认证授信' when t.TRANS_TYPE = '55' then '淘宝认证授信' when t.TRANS_TYPE = '56' then '社保认证授信' when t.TRANS_TYPE = '61' then '预支还款' else t.TRANS_TYPE end as transType,
+		case when trr.REPAY_FLAG = '0' then '系统自动' when trr.REPAY_FLAG = '1' then '用户主动' else trr.REPAY_FLAG end as repayFlag,
+		case when tb.USER_CHANNEL_ID = '01' then '嘉福平台' when tb.USER_CHANNEL_ID = '02' then '嘉薪平台' when tb.USER_CHANNEL_ID = '03' then '智慧嘉' else tb.USER_CHANNEL_ID end as channel,
+		case when trr.REPAY_TYPE = '01' then '福利账户' when trr.REPAY_TYPE = '02' then '工资账户' when trr.REPAY_TYPE = '03' then '支付宝' when trr.REPAY_TYPE = '04' then '微信' when trr.REPAY_TYPE = '05' then '银行卡' when trr.REPAY_TYPE = '06' then '企业支付宝' else trr.REPAY_TYPE end as repayType
+		from
+		TB_ACT_TRADING_FLOW t
+		LEFT JOIN TB_USER tb ON t.USER_ID = tb.USER_ID
+		LEFT JOIN TB_ACCOUNT_INFO ta ON t.ACCOUNT_NO = ta.ACCOUNT_NO
+		LEFT JOIN TB_REPAY_RECORD trr ON t.BIZID = trr.REPAY_SERIAL_NO
+		where 1=1
+		<if test="flowId!=null and flowId!='' ">
+			and t.FLOW_ID like #{flowId}
+		</if>
+		<if test="channelBizid!=null and channelBizid!='' ">
+			and t.CHANNEL_BIZID like #{channelBizid}
+		</if>
+		<if test="bizid!=null and bizid!='' ">
+			and t.BIZID like #{bizid}
+		</if>
+		<if test="transType!=null and transType!='' ">
+			and t.TRANS_TYPE like #{transType}
+		</if>
+		<if test="realName!=null and realName!='' ">
+			and ta.REALNAME like #{realName}
+		</if>
+		<if test="mobile!=null and mobile!='' ">
+			and tb.MOBILE like #{mobile}
+		</if>
+		<if test="email!=null and email!='' ">
+			and tb.EMAIL like #{email}
+		</if>
+		<if test="transTimeStart!=null and transTimeStart!='' ">
+			<![CDATA[ and t.TRANS_TIME >= #{transTimeStart} ]]>
+		</if>
+		<if test="transTimeEnd!=null and transTimeEnd!='' ">
+			<![CDATA[ and t.TRANS_TIME <= date_add(#{transTimeEnd}, interval 1 day) ]]>
+		</if>
+		ORDER BY t.TRANS_TIME DESC
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	<select id="findRepayOverList" parameterType="Map" resultType="com.bootdo.Cdomain.domain.OverFlow">
+		select 
+			t.COST_TYPE as costType,
+			t.OVERDUE_COST as overdueCost,
+			t.CREATE_TIME as createTime
+			from TB_OVERDUE_FLOW t,TB_REPAY_PLAN tb WHERE t.REPAY_PLAN_NO = tb.REPAY_PLAN_NO
+			<if test="repayPlanNo!=null and repayPlanNo!='' ">
+				AND t.REPAY_PLAN_NO =  #{repayPlanNo}
+			</if>
+			ORDER BY t.CREATE_TIME DESC
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+	<select id="getTotalRepayOverList" parameterType="Map" resultType="Long">
+		select count(*) from TB_OVERDUE_FLOW t,TB_REPAY_PLAN tb WHERE t.REPAY_PLAN_NO = tb.REPAY_PLAN_NO
+		<if test="repayPlanNo!=null and repayPlanNo!='' ">
+			AND t.REPAY_PLAN_NO =  #{repayPlanNo}
+		</if>
+	</select>
+	
+	
+	<select id="findRepayRecordList" parameterType="Map" resultType="com.bootdo.RepayRecord.domain.RepayRecord">
+			SELECT 
+				t.REPAY_SERIAL_NO as repaySerianlNo,
+				tu.COMPANY_NAME as companyName,
+				ti.REALNAME as realname,
+				tu.EMAIL as email,
+				tu.MOBILE as mobile,
+				t.REPAY_AMOUNT_SUM as repayAmountSum,
+				(CAST(t.REPAY_AMOUNT_SUM as DECIMAL(30,2)) - CAST(t.REPAY_INTEREST_SUM as DECIMAL(30,2))) as amount,
+				t.REPAY_INTEREST_SUM as repayInterestSum,
+				t.REPAY_FLAG as repayFlag,
+				t.REPAY_TYPE as repayType,
+				t.JF_REPAY_NO as jfRepayNo,
+				t.FINISH_TIME as finishTime
+				FROM TB_REPAY_RECORD t,TB_USER tu,TB_ACCOUNT_INFO ti
+				WHERE t.USER_ID = tu.USER_ID and t.PAY_STATE = '1' and t.ACCOUNT_NO = ti.ACCOUNT_NO
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			<if test="jfRepayNo!=null and jfRepayNo!='' ">
+				and t.JF_REPAY_NO like #{jfRepayNo}
+			</if>
+			<if test="finishTimeStart!=null and finishTimeStart!='' ">
+				<![CDATA[ and t.FINISH_TIME >= #{finishTimeStart} ]]>
+			</if>
+			<if test="finishTimeEnd!=null and finishTimeEnd!='' ">
+				<![CDATA[ and t.FINISH_TIME <= date_add(#{finishTimeEnd}, interval 1 day) ]]>
+			</if>
+			ORDER BY t.FINISH_TIME DESC
+			<if test="offset != null and limit != null">
+				limit #{offset}, #{limit}
+			</if>
+	</select>
+	
+	<select id="getTotalRepayRecordList" parameterType="Map" resultType="Long">
+			SELECT
+			count(*)
+			FROM TB_REPAY_RECORD t,TB_USER tu,TB_ACCOUNT_INFO ti
+			WHERE t.USER_ID = tu.USER_ID and t.PAY_STATE = '1' and t.ACCOUNT_NO = ti.ACCOUNT_NO
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE like #{mobile}
+			</if>
+			<if test="realname!=null and realname!='' ">
+				and ti.REALNAME like #{realname}
+			</if>
+			<if test="email!=null and email!='' ">
+				and tu.EMAIL like #{email}
+			</if>
+			<if test="jfRepayNo!=null and jfRepayNo!='' ">
+				and t.JF_REPAY_NO like #{jfRepayNo}
+			</if>
+			<if test="finishTimeStart!=null and finishTimeStart!='' ">
+				<![CDATA[ and t.FINISH_TIME >= #{finishTimeStart} ]]>
+			</if>
+			<if test="finishTimeEnd!=null and finishTimeEnd!='' ">
+				<![CDATA[ and t.FINISH_TIME <= date_add(#{finishTimeEnd}, interval 1 day) ]]>
+			</if>
+	</select>
+
+	<select id="findRepayRecordListN" parameterType="Map" resultType="java.util.HashMap">
+		SELECT
+		t.REPAY_SERIAL_NO as repaySerianlNo,
+		tu.COMPANY_NAME as companyName,
+		ti.REALNAME as realname,
+		tu.EMAIL as email,
+		tu.MOBILE as mobile,
+		t.REPAY_AMOUNT_SUM as repayAmountSum,
+		(CAST(t.REPAY_AMOUNT_SUM as DECIMAL(30,2)) - CAST(t.REPAY_INTEREST_SUM as DECIMAL(30,2))) as amount,
+		t.REPAY_INTEREST_SUM as repayInterestSum,
+		t.REPAY_FLAG as repayFlag,
+		t.REPAY_TYPE as repayType,
+		t.JF_REPAY_NO as jfRepayNo,
+		t.FINISH_TIME as finishTime
+		FROM TB_REPAY_RECORD t,TB_USER tu,TB_ACCOUNT_INFO ti
+		WHERE t.USER_ID = tu.USER_ID and t.PAY_STATE = '1' and t.ACCOUNT_NO = ti.ACCOUNT_NO
+		<if test="mobile!=null and mobile!='' ">
+			and tu.MOBILE like #{mobile}
+		</if>
+		<if test="realname!=null and realname!='' ">
+			and ti.REALNAME like #{realname}
+		</if>
+		<if test="email!=null and email!='' ">
+			and tu.EMAIL like #{email}
+		</if>
+		<if test="jfRepayNo!=null and jfRepayNo!='' ">
+			and t.JF_REPAY_NO like #{jfRepayNo}
+		</if>
+		<if test="finishTimeStart!=null and finishTimeStart!='' ">
+			<![CDATA[ and t.FINISH_TIME >= #{finishTimeStart} ]]>
+		</if>
+		<if test="finishTimeEnd!=null and finishTimeEnd!='' ">
+			<![CDATA[ and t.FINISH_TIME <= date_add(#{finishTimeEnd}, interval 1 day) ]]>
+		</if>
+		ORDER BY t.FINISH_TIME DESC
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	<insert id="insertFlow" parameterType="com.bootdo.Cdomain.domain.TradingFlowEntity">
+		INSERT INTO TB_ACT_TRADING_FLOW
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="flowId != null">
+				FLOW_ID,
+			</if>
+			<if test="channel != null">
+				CHANNEL,
+			</if>
+			<if test="relatedFlowId != null">
+				RELATED_FLOW_ID,
+			</if>
+			<if test="bizid != null">
+				BIZID,
+			</if>
+			<if test="channelBizid != null">
+				CHANNEL_BIZID,
+			</if>
+			<if test="transDate != null">
+				TRANS_DATE,
+			</if>
+			<if test="transTime != null">
+				TRANS_TIME,
+			</if>
+			<if test="transType != null">
+				TRANS_TYPE,
+			</if>
+			<if test="userId != null">
+				USER_ID,
+			</if>
+			<if test="accountId != null">
+				ACCOUNT_ID,
+			</if>
+			<if test="type != null">
+				TYPE,
+			</if>
+			<if test="accountNo != null">
+				ACCOUNT_NO,
+			</if>
+			<if test="amount != null">
+				AMOUNT,
+			</if>
+			<if test="addAndSubtract != null">
+				ADD_AND_SUBTRACT,
+			</if>
+			<if test="balance != null">
+				BALANCE,
+			</if>
+			<if test="creditLimit != null">
+				CREDIT_LIMIT,
+			</if>
+			<if test="usableLimit != null">
+				USABLE_LIMIT,
+			</if>
+			<if test="tradingState != null">
+				TRADING_STATE,
+			</if>
+			<if test="refundAmount != null">
+				REFUND_AMOUNT,
+			</if>
+			RECEIVE_TIME,
+			LAST_TIME,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="flowId != null">
+				#{flowId},
+			</if>
+			<if test="channel != null">
+				#{channel},
+			</if>
+			<if test="relatedFlowId != null">
+				#{relatedFlowId},
+			</if>
+			<if test="bizid != null">
+				#{bizid},
+			</if>
+			<if test="channelBizid != null">
+				#{channelBizid},
+			</if>
+			<if test="transDate != null">
+				#{transDate},
+			</if>
+			<if test="transTime != null">
+				#{transTime},
+			</if>
+			<if test="transType != null">
+				#{transType},
+			</if>
+			<if test="userId != null">
+				#{userId},
+			</if>
+			<if test="accountId != null">
+				#{accountId},
+			</if>
+			<if test="type != null">
+				#{type},
+			</if>
+			<if test="accountNo != null">
+				#{accountNo},
+			</if>
+			<if test="amount != null">
+				#{amount},
+			</if>
+			<if test="addAndSubtract != null">
+				#{addAndSubtract},
+			</if>
+			<if test="balance != null">
+				#{balance},
+			</if>
+			<if test="creditLimit != null">
+				#{creditLimit},
+			</if>
+			<if test="usableLimit != null">
+				#{usableLimit},
+			</if>
+			<if test="tradingState != null">
+				#{tradingState},
+			</if>
+			<if test="refundAmount != null">
+				#{refundAmount},
+			</if>
+			SYSDATE(),
+			SYSDATE(),
+		</trim>
+	</insert>
+</mapper> 

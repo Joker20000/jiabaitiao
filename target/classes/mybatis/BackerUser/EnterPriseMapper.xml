@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.bootdo.BackerUser.dao.IEnterPriseDao">
+
+	<select id="list" parameterType="java.lang.String" resultType="com.bootdo.BackerUser.domain.Chack">
+		SELECT
+		e.e_id as eid,
+		e.channel as channel,
+		e.c_admin_id as cadminid,
+		e.c_e_id as ceid,
+		e.e_name as ename,
+		e.credit_code as creditcode,
+		e.address as address,
+		e.telephone as telephone,
+		e.linkman as linkman,
+		e.link_duties as linkduties,
+		e.link_phone as linkphone,
+		e.guarant as guarant,
+		e.guarant_duties as guarantduties,
+		e.guarant_phone as guarantphone,
+		e.guarant_ide as guarantide,
+		e.state as state,
+		e.apply_time as applytime,
+		(SELECT c.last_instance_time FROM t_chack c WHERE c.e_id=e.e_id ORDER BY c.apply_time DESC limit 1)  as lastinstancetime
+		FROM t_enterprise e
+		where 1=1
+		<if test="eid != null and  eid !=''">
+			and  e.e_id =#{eid}
+		</if>
+		<if test="ename != null and  ename !=''">
+			and  e.e_name like #{ename}
+		</if>
+		<if test="creditcode != null and  creditcode !=''">
+			and  e.credit_code = #{creditcode}
+		</if>
+		<if test="state != null and  state !=''">
+			and  e.state =#{state}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.apply_time >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.apply_time <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+		order by e.e_id desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from t_enterprise e
+		where
+		1=1
+		<if test="eid != null and  eid !=''">
+			and  e.e_id =#{eid}
+		</if>
+		<if test="ename != null and  ename !=''">
+			and  e.e_name like #{ename}
+		</if>
+		<if test="creditcode != null and  creditcode !=''">
+			and  e.credit_code = #{creditcode}
+		</if>
+		<if test="state != null and  state !=''">
+			and  e.state =#{state}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and e.apply_time >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and e.apply_time <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+	</select>
+
+	<!--下载-->
+	<select id="BacExcel" resultType="java.util.HashMap">
+		SELECT
+		e.e_id as eid,
+		e.channel as channel,
+		e.c_admin_id as cadminid,
+		e.c_e_id as ceid,
+		e.e_name as ename,
+		e.credit_code as creditcode,
+		e.address as address,
+		e.telephone as telephone,
+		e.linkman as linkman,
+		e.link_duties as linkduties,
+		e.link_phone as linkphone,
+		e.guarant as guarant,
+		e.guarant_duties as guarantduties,
+		e.guarant_phone as guarantphone,
+		e.guarant_ide as guarantide,
+		e.state as state,
+		DATE_FORMAT(
+		e.apply_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS applytime,
+		DATE_FORMAT((SELECT c.last_instance_time FROM t_chack c WHERE c.e_id=e.e_id ORDER BY c.apply_time DESC limit 1),
+		'%Y-%m-%d %H:%i:%s'
+		) AS lastinstancetime
+		FROM t_enterprise e
+		where 1=1
+		<if test="eid != null and  eid !=''">
+			and  e.e_id =#{eid}
+		</if>
+		<if test="ename != null and  ename !=''">
+			and  e.e_name like #{ename}
+		</if>
+		<if test="creditcode != null and  creditcode !=''">
+			and  e.credit_code = #{creditcode}
+		</if>
+		<if test="state != null and  state !=''">
+			and  e.state =#{state}
+		</if>
+		<if test="starTime!=null and starTime!='' ">
+			<![CDATA[ and c.apply_time >= #{starTime} ]]>
+		</if>
+		<if test="endTime!=null and endTime!='' ">
+			<![CDATA[ and c.apply_time <= date_add(#{endTime}, interval 1 day) ]]>
+		</if>
+		order by e.e_id desc
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+</mapper>

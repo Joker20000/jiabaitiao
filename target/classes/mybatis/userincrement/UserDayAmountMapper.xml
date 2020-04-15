@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.increment.dao.UserDayAmountDao">
+
+    <resultMap id="userDayAmount" type="com.bootdo.increment.domain.TbIncrementUser">
+        <id column="user_id" property="userId"></id>
+        <result column="user_name" property="userName"></result>
+        <result column="user_mobile" property="userMobile"></result>
+        <result column="user_email" property="userEmail"></result>
+        <result column="user_channel_id" property="userChannelId"></result>
+        <result column="ent_id" property="entId"></result>
+        <result column="ent_name" property="entName"></result>
+        <result column="guid" property="guid"></result>
+        <result column="geid" property="geid"></result>
+        <result column="data_state" property="dataState"></result>
+        <result column="create_date" property="createDate"></result>
+        <result column="update_date" property="updateDate"></result>
+        <association javaType="com.bootdo.increment.domain.TbIncrementUserAccount" property="incrementUserAccount">
+            <id column="account_id" property="accountId"></id>
+            <result column="user_id" property="userId"></result>
+            <result column="account_type" property="accountType"></result>
+            <result column="increment_amount" property="incrementAmount"></result>
+            <result column="reward_amount" property="rewardAmount"></result>
+            <result column="data_state" property="dataState"></result>
+            <result column="create_date" property="createDate"></result>
+            <result column="update_date" property="updateDate"></result>
+            <association property="userDayAmount" javaType="com.bootdo.increment.domain.TbUserDayAmount">
+                <id column="user_record_id" property="userRecordId"></id>
+                <result column="account_id" property="accountId"></result>
+                <result column="jiaxin_ent_id" property="jiaxinEntId"></result>
+                <result column="jiaxin_ent_name" property="jiaxinEntName"></result>
+                <result column="increment_amount" property="incrementAmount"></result>
+                <result column="right_amount" property="rightAmount"></result>
+                <result column="data_state" property="dataState"></result>
+                <result column="statistics_date" property="statisticsDate"></result>
+                <result column="create_date" property="createDate"></result>
+                <result column="update_date" property="updateDate"></result>
+            </association>
+        </association>
+    </resultMap>
+
+    <!--用户增值日报表查询条件-->
+    <sql id="userDayAmountsql">
+        <where>
+            tb_increment_user.user_id=tb_increment_user_account.user_id
+            and tb_increment_user_account.account_id=tb_user_day_amount.account_id
+            <if test="userName !=null and userName != ''">
+                and tb_increment_user.user_name like '${userName}%'
+            </if>
+            <if test="userMobile !=null and userMobile != ''">
+                and tb_increment_user.user_mobile like '${userMobile}%'
+            </if>
+            <if test="userEmail !=null and userEmail != ''">
+                and tb_increment_user.user_email like '${userEmail}%'
+            </if>
+            <if test="entName !=null and entName != ''">
+                and tb_user_day_amount.jiaxin_ent_name like '${entName}%'
+            </if>
+            <if test="statisticsDateStart !=null and statisticsDateStart != ''">
+                and tb_user_day_amount.statistics_date >= #{statisticsDateStart}
+            </if>
+            <if test="statisticsDateEnd !=null and statisticsDateEnd != ''">
+                and tb_user_day_amount.statistics_date &lt;= #{statisticsDateEnd}
+            </if>
+            <if test="createDateStart !=null and createDateStart != ''">
+                and tb_user_day_amount.create_date >= #{createDateStart}
+            </if>
+            <if test="createDateEnd !=null and createDateEnd != ''">
+                and tb_user_day_amount.create_date &lt;= #{createDateEnd}
+            </if>
+        </where>
+    </sql>
+    <!--用户增值日报表查询-->
+    <select id="selectUserDayAmountList" resultMap="userDayAmount">
+        SELECT
+        tb_user_day_amount.statistics_date,
+        tb_increment_user.user_name,
+        tb_increment_user.user_mobile,
+        tb_increment_user.user_email,
+        tb_user_day_amount.increment_amount,
+        tb_increment_user.user_channel_id,
+        tb_user_day_amount.jiaxin_ent_id,
+        tb_user_day_amount.jiaxin_ent_name,
+        tb_user_day_amount.right_amount,
+        tb_user_day_amount.create_date
+        FROM
+        tb_increment_user,
+        tb_increment_user_account,
+        tb_user_day_amount
+        <include refid="userDayAmountsql"></include>
+        order by tb_user_day_amount.statistics_date,tb_user_day_amount.create_date desc
+        <if test="offset != null and limit!=null ">
+            limit ${offset},${limit}
+        </if>
+    </select>
+    <!--用户增值日报表查询 count-->
+    <select id="selectUserDayAmountCount" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        tb_increment_user,
+        tb_increment_user_account,
+        tb_user_day_amount
+        <include refid="userDayAmountsql"></include>
+    </select>
+</mapper>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content ">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="signupForm">
+						<input id="COUNT_ID" name="COUNT_ID" th:value="${financeCount.COUNT_ID}"  type="hidden">
+							<div class="form-group">	
+								<label class="col-sm-3 control-label">统计日期：</label>
+								<div class="col-sm-8">
+									<input id="countDate" name="countDate" th:value="${financeCount.countDate}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">放款本金：</label>
+								<div class="col-sm-8">
+									<input id="loanAmount" name="loanAmount" th:value="${financeCount.loanAmount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">已还本金：</label>
+								<div class="col-sm-8">
+									<input id="readyAmount" name="readyAmount" th:value="${financeCount.readyAmount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">待还本金：</label>
+								<div class="col-sm-8">
+									<input id="waitAmount" name="waitAmount" th:value="${financeCount.waitAmount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">预计收入：</label>
+								<div class="col-sm-8">
+									<input id="estimatedRevenue" name="estimatedRevenue" th:value="${financeCount.estimatedRevenue}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">实际收入：</label>
+								<div class="col-sm-8">
+									<input id="realIncome" name="realIncome" th:value="${financeCount.realIncome}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">新增放款：</label>
+								<div class="col-sm-8">
+									<input id="addLoanAmount" name="addLoanAmount" th:value="${financeCount.addLoanAmount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">新增还款：</label>
+								<div class="col-sm-8">
+									<input id="addReadyAmount" name="addReadyAmount" th:value="${financeCount.addReadyAmount}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">新增预计收入：</label>
+								<div class="col-sm-8">
+									<input id="addEstimatedRevenue" name="addEstimatedRevenue" th:value="${financeCount.addEstimatedRevenue}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">新增实际收入：</label>
+								<div class="col-sm-8">
+									<input id="addRealIncome" name="addRealIncome" th:value="${financeCount.addRealIncome}" class="form-control" type="text">
+								</div>
+							</div>
+														<div class="form-group">	
+								<label class="col-sm-3 control-label">创建时间：</label>
+								<div class="col-sm-8">
+									<input id="createTime" name="createTime" th:value="${financeCount.createTime}" class="form-control" type="text">
+								</div>
+							</div>
+																					<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button type="submit" class="btn btn-primary">提交</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+	</div>
+	</div>
+	<div th:include="include::footer"></div>
+	<script type="text/javascript" src="/js/appjs/system/financeCount/edit.js">
+	</script>
+</body>
+</html>

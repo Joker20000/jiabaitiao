@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.QuotaAd.dao.QuotaDao">
+     
+     
+      <select id="findQuotaRecordByCondition"  resultType="com.bootdo.QuotaAd.domain.QuotaRecord"  parameterType="Map"  >
+                      select
+                      tco.CREDIT_NUM as creditNum,
+                      ti.REALNAME  as realName,
+                      tu.mobile    as  mobile,
+                      ti.CARDID   as   cardId,
+                      tf.ADD_AND_SUBTRACT as addAndSubstract,
+                      tf.AMOUNT as amount,
+                      tf.CREDIT_LIMIT  as creditLimit,
+                      tf.USABLE_LIMIT  as usableLimit,
+                      t.username  as uname,
+                      tco.DES  as reason,
+                      tco.OPERATE_TIME  as operateTime,
+                      tco.AFTER_VIP_LEVEL AS afterVipLevel,
+                      tco.BEFORE_VIP_LEVEL as beforeVipLevel
+                      from   TB_ACT_TRADING_FLOW tf ,T_ACT_CREDIT_ORDER tco ,TB_USER  tu,sys_user t,TB_ACCOUNT_INFO ti
+                      where     tf.BIZID=tco.CREDIT_NUM
+                      AND
+                      tf.USER_ID=tu.USER_ID
+                      AND
+                      tco.OPERATE_MAN_ID=t.user_id
+                      AND
+                      ti.ACCOUNT_NO=tf.ACCOUNT_NO
+                    <if test="uname!=null and uname!='' ">
+                          and t.username like #{uname}
+                    </if>
+		            <if test="realName!=null and realName!='' ">
+						and ti.REALNAME like #{realName}
+					</if>
+					<if test="mobile!=null and mobile!='' ">
+						and  tu.MOBILE like #{mobile}
+					</if>
+					<if test="cardId!=null and cardId!='' ">
+						and ti.CARDID like #{cardId}
+					</if>
+					  <if test="startTime!=null and startTime!='' ">
+				          <![CDATA[ and tco.OPERATE_TIME >= #{startTime} ]]>
+			         </if>
+					<if test="endTime!=null and endTime!='' ">
+						<![CDATA[ and tco.OPERATE_TIME <= date_add(#{endTime}, interval 1 day)]]>
+					</if>
+						
+					 order by     tco.OPERATE_TIME  DESC
+                      <if test="offset != null and limit != null">
+                          limit #{offset}, #{limit}
+                      </if>
+		    	      
+             </select>
+
+            <select id="findQuotaRecordByConditionN"  resultType="java.util.HashMap"  parameterType="Map"  >
+                select
+                tco.CREDIT_NUM as creditNum,
+                ti.REALNAME  as realName,
+                tu.mobile    as  mobile,
+                ti.CARDID   as   cardId,
+                tf.ADD_AND_SUBTRACT as addAndSubstract,
+                tf.AMOUNT as amount,
+                tf.CREDIT_LIMIT  as creditLimit,
+                tf.USABLE_LIMIT  as usableLimit,
+                t.username  as uname,
+                tco.DES  as reason,
+                tco.OPERATE_TIME  as operateTime,
+                tco.AFTER_VIP_LEVEL AS afterVipLevel,
+                tco.BEFORE_VIP_LEVEL as beforeVipLevel
+                from   TB_ACT_TRADING_FLOW tf ,T_ACT_CREDIT_ORDER tco ,TB_USER  tu,sys_user t,TB_ACCOUNT_INFO ti
+                where     tf.BIZID=tco.CREDIT_NUM
+                AND
+                tf.USER_ID=tu.USER_ID
+                AND
+                tco.OPERATE_MAN_ID=t.user_id
+                AND
+                ti.ACCOUNT_NO=tf.ACCOUNT_NO
+                <if test="uname!=null and uname!='' ">
+                    and t.username like #{uname}
+                </if>
+                <if test="realName!=null and realName!='' ">
+                    and ti.REALNAME like #{realName}
+                </if>
+                <if test="mobile!=null and mobile!='' ">
+                    and  tu.MOBILE like #{mobile}
+                </if>
+                <if test="cardId!=null and cardId!='' ">
+                    and ti.CARDID like #{cardId}
+                </if>
+                <if test="startTime!=null and startTime!='' ">
+                    <![CDATA[ and tco.OPERATE_TIME >= #{startTime} ]]>
+                </if>
+                <if test="endTime!=null and endTime!='' ">
+                    <![CDATA[ and tco.OPERATE_TIME <= date_add(#{endTime}, interval 1 day)]]>
+                </if>
+
+                order by     tco.OPERATE_TIME  DESC
+                <if test="offset != null and limit != null">
+                    limit #{offset}, #{limit}
+                </if>
+
+            </select>
+            <select id="findQuotaRecordCountByCondition"  resultType="Long"  parameterType="Map"  >
+                    select
+                    count(*)
+                    from   TB_ACT_TRADING_FLOW tf ,T_ACT_CREDIT_ORDER tco ,TB_USER  tu,sys_user t,TB_ACCOUNT_INFO ti
+                    where  tf.BIZID=tco.CREDIT_NUM
+                    AND
+                    tf.USER_ID=tu.USER_ID
+                    AND
+                    tco.OPERATE_MAN_ID=t.user_id
+                    AND
+                    ti.ACCOUNT_NO=tf.ACCOUNT_NO
+                    <if test="uname!=null and uname!='' ">
+                        and t.username like #{uname}
+                    </if>
+		            <if test="realName!=null and realName!='' ">
+						and ti.REALNAME like #{realName}
+					</if>
+					<if test="mobile!=null and mobile!='' ">
+						and tu.MOBILE like #{mobile}
+					</if>
+					<if test="cardId!=null and cardId!='' ">
+						and ti.CARDID like #{cardId}
+					</if>
+					  <if test="startTime!=null and startTime!='' ">
+				          <![CDATA[ and tco.OPERATE_TIME >= #{startTime} ]]>
+			         </if>
+					<if test="endTime!=null and endTime!='' ">
+						<![CDATA[ and tco.OPERATE_TIME <= date_add(#{endTime}, interval 1 day)]]>
+					</if>							 
+		    	      
+      </select>
+  
+  
+     
+  
+  
+  
+  
+
+      <insert id="addCreditOrder" parameterType="com.bootdo.Cdomain.domain.CreditOrder">
+      	 insert into T_ACT_CREDIT_ORDER(CREDIT_NUM,OPERATE_MAN_ID,OPERATE_TIME,DES,STATE,BEFORE_VIP_LEVEL,AFTER_VIP_LEVEL)
+      	  values
+      	  (
+                #{creditNum}, #{operateManId}, #{operateTime}, #{des}, #{state},#{beforeVipLevel},#{afterVipLevel}
+
+           )
+      </insert>
+  
+  
+  
+      
+  
+  
+  
+    <select id="getAccountNoByUserId" parameterType="String" resultType="String">
+           select ACCOUNT_NO  from  TB_ACT_ACCOUNT_REL  where  ACCOUNT_ID  in
+                (select  ACCOUNT_ID from  TB_ACT_USER_ACCOUNT  where   USER_ID=#{userId})
+    </select>
+
+    <update id="updateGrantAccountInf" >
+        update  TB_ACT_ACCOUNT
+        set
+        <if test="creditLimit!= null and creditLimit!=''">
+            CREDIT_LIMIT=#{creditLimit},
+        </if>
+        <if test="usableLimit != null and usableLimit !=''">
+            USABLE_LIMIT=#{usableLimit},
+        </if>
+        <if test="lastTime != null and  lastTime !=''">
+            LAST_TIME=#{lastTime}
+       </if>
+        where
+        ACCOUNT_NO=#{accountNo}
+    </update>
+     
+     <!--<update id="updateGrantAccountInf" >
+          update  TB_ACT_ACCOUNT
+            <set>
+         &lt;!&ndash;<if test="creditLimit!= null and creditLimit!=''">
+              CREDIT_LIMIT=#{creditLimit},
+        </if>&ndash;&gt;
+         <if test="usableLimit != null and usableLimit !=''">
+              USABLE_LIMIT=#{usableLimit},
+        </if>
+         <if test="lastTime != null and  lastTime !=''">
+             LAST_TIME=#{lastTime},
+         </if>
+        <if test="chackName != null and  chackName !=''">
+            CHACK_NAME=#{chackName},
+        </if>
+         </set>
+         where
+         ACCOUNT_NO=#{accountNo}
+    </update>-->
+
+        <select id="getAccountIdByUserId" resultType="java.lang.String" parameterType="java.lang.Integer">
+        select  ACCOUNT_ID from  TB_ACT_USER_ACCOUNT  where   USER_ID=#{userId}
+    </select>
+    
+      
+      <select id="findUserInfoByUsertId"  parameterType="java.lang.String" resultType="java.util.Map">
+
+        select  CREDIT_LIMIT  as "creditLimit",
+                 USABLE_LIMIT  as "usableLimit"
+         from  TB_ACT_ACCOUNT   where   ACCOUNT_NO  in
+        (select ACCOUNT_NO from  TB_ACT_ACCOUNT_REL  where    ACCOUNT_ID  in
+        (select ACCOUNT_ID from TB_ACT_USER_ACCOUNT  where USER_ID=#{userId}) )
+      </select>  
+    
+  
+    <insert id="insertFlow" parameterType="com.bootdo.Cdomain.domain.TradingFlowEntity">
+        INSERT INTO TB_ACT_TRADING_FLOW
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="flowId != null">
+                FLOW_ID,
+            </if>
+            <if test="channel != null">
+                CHANNEL,
+            </if>
+            <if test="relatedFlowId != null">
+                RELATED_FLOW_ID,
+            </if>
+            <if test="bizid != null">
+                BIZID,
+            </if>
+            <if test="channelBizid != null">
+                CHANNEL_BIZID,
+            </if>
+            <if test="transDate != null">
+                TRANS_DATE,
+            </if>
+            <if test="transTime != null">
+                TRANS_TIME,
+            </if>
+            <if test="transType != null">
+                TRANS_TYPE,
+            </if>
+            <if test="userId != null">
+                USER_ID,
+            </if>
+            <if test="accountId != null">
+                ACCOUNT_ID,
+            </if>
+            <if test="type != null">
+                TYPE,
+            </if>
+            <if test="accountNo != null">
+                ACCOUNT_NO,
+            </if>
+            <if test="amount != null">
+                AMOUNT,
+            </if>
+            <if test="addAndSubtract != null">
+                ADD_AND_SUBTRACT,
+            </if>
+            <if test="balance != null">
+                BALANCE,
+            </if>
+            <if test="creditLimit != null">
+                CREDIT_LIMIT,
+            </if>
+            <if test="usableLimit != null">
+                USABLE_LIMIT,
+            </if>
+            <if test="tradingState != null">
+                TRADING_STATE,
+            </if>
+            <if test="refundAmount != null">
+                REFUND_AMOUNT,
+            </if>
+            RECEIVE_TIME,
+            LAST_TIME,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="flowId != null">
+                #{flowId},
+            </if>
+            <if test="channel != null">
+                #{channel},
+            </if>
+            <if test="relatedFlowId != null">
+                #{relatedFlowId},
+            </if>
+            <if test="bizid != null">
+                #{bizid},
+            </if>
+            <if test="channelBizid != null">
+                #{channelBizid},
+            </if>
+            <if test="transDate != null">
+                #{transDate},
+            </if>
+            <if test="transTime != null">
+                #{transTime},
+            </if>
+            <if test="transType != null">
+                #{transType},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="accountId != null">
+                #{accountId},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="accountNo != null">
+                #{accountNo},
+            </if>
+            <if test="amount != null">
+                #{amount},
+            </if>
+            <if test="addAndSubtract != null">
+                #{addAndSubtract},
+            </if>
+            <if test="balance != null">
+                #{balance},
+            </if>
+            <if test="creditLimit != null">
+                #{creditLimit},
+            </if>
+            <if test="usableLimit != null">
+                #{usableLimit},
+            </if>
+            <if test="tradingState != null">
+                #{tradingState},
+            </if>
+            <if test="refundAmount != null">
+                #{refundAmount},
+            </if>
+            SYSDATE(),
+            SYSDATE(),
+        </trim>
+    </insert>
+       
+   
+   
+              <select id="isExistByPwdAndUname" resultType="Integer" >
+              	 select count(*) from sys_user where password=#{pwd}  and username=#{uname}
+              	     
+              </select> 
+                
+                <select id="findIdByPwdAndUname" resultType="Integer" >
+              	 select user_id from sys_user where password=#{pwd}  and username=#{uname}
+                </select> 
+      
+         <select id="getInfoByUserId" parameterType="String" resultType="com.bootdo.QuotaAd.domain.QuotaAdjustment">
+            select tu.USER_ID as userId, COMPANY_NAME as companyName,REALNAME as realName,MOBILE as mobile
+    	,CARDID as cardId ,tac.CREDIT_LIMIT as creditLimit,tac.USABLE_LIMIT as usableLimit,'操作' as operation
+    	    from TB_USER  tu,TB_ACT_USER_ACCOUNT  tau,TB_ACT_ACCOUNT_REL taa,TB_ACT_ACCOUNT tac
+            where 
+            tu.USER_ID=tau.USER_ID  
+            and  
+            tau.ACCOUNT_ID=taa.ACCOUNT_ID 
+            and 
+            taa.ACCOUNT_NO=tac.ACCOUNT_NO
+            and
+            tu.USER_ID=#{userId}
+         </select>
+     
+      
+          
+    <select id="findQuotaAdjustmentByCondition" parameterType="map" resultType="com.bootdo.QuotaAd.domain.QuotaAdjustment">
+            select
+            tu.USER_ID as userId,
+            tu.COMPANY_NAME as companyName,
+            ti.REALNAME as realName,
+            ti.VIP_LEVEL as  vipLevel,
+            tu.MOBILE as mobile,
+            ti.CARDID as cardId ,
+            tac.CREDIT_LIMIT as creditLimit,
+            tac.USABLE_LIMIT as usableLimit,
+            '调额' as operation
+            from TB_USER  tu,TB_ACT_USER_ACCOUNT  tau,TB_ACT_ACCOUNT_REL taa,TB_ACT_ACCOUNT tac,TB_ACCOUNT_INFO ti
+            where
+            tu.USER_ID=tau.USER_ID
+            and
+            tau.ACCOUNT_ID=taa.ACCOUNT_ID
+            and
+            taa.ACCOUNT_NO=tac.ACCOUNT_NO
+            and
+            ti.ACCOUNT_NO=tac.ACCOUNT_NO
+            <if test="userId!=null and userId!='' ">
+                and tu.USER_ID = #{userId}
+            </if>
+			<if test="realName!=null and realName!='' ">
+				and ti.REALNAME = #{realName}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE = #{mobile}
+			</if>
+			<if test="cardId!=null and cardId!='' ">
+				and ti.CARDID = #{cardId}
+			</if>
+            <if test="offset != null and limit != null">
+                limit #{offset}, #{limit}
+            </if>
+    </select>
+    
+    
+    
+     <select id="findQuotaAdjustmentCountByCondition"  parameterType="map"  resultType="Long">
+             select
+             count(*)
+             from TB_USER  tu,TB_ACT_USER_ACCOUNT  tau,TB_ACT_ACCOUNT_REL taa,TB_ACT_ACCOUNT tac,TB_ACCOUNT_INFO ti
+             where
+             tu.USER_ID=tau.USER_ID
+             and
+             tau.ACCOUNT_ID=taa.ACCOUNT_ID
+             and
+             taa.ACCOUNT_NO=tac.ACCOUNT_NO
+             and
+             ti.ACCOUNT_NO=tac.ACCOUNT_NO
+			<if test="realName!=null and realName!='' ">
+				and ti.REALNAME = #{realName}
+			</if>
+			<if test="mobile!=null and mobile!='' ">
+				and tu.MOBILE = #{mobile}
+			</if>
+			<if test="cardId!=null and cardId!='' ">
+				and ti.CARDID = #{cardId}
+			</if>
+    
+    </select>
+    
+      
+      
+      
+      <select id="findStateByuserId"   resultType="String">
+       select STATE from  TB_BLACKLIST where USER_ID=#{userId}
+      </select>
+    
+    
+      <select id="updateBlackListState" >
+             update
+            TB_BLACKLIST t
+              set
+         		t.STATE =#{state},
+         		t.OPERATE_TIME=#{operateTime}		 
+              where 
+                t.USER_ID=#{userId}                      	
+         </select>
+    
+    
+      <select id="updateBlackListState1" parameterType="com.bootdo.BlackList.domain.Blacklist">
+             update
+            TB_BLACKLIST t
+              set
+         		t.STATE =#{state} ,
+         		t.OPERATE_MAN=#{operateMan}	,
+         		t.OPERATE_TIME=#{operateTime},
+         		t.REASON=#{reason},
+         		t.LAST_TIME=#{lastTime}
+              where 
+                t.USER_ID=#{userId}                      	
+         </select>
+          
+    
+     <insert  id="addBlackListInfo" parameterType="com.bootdo.BlackList.domain.Blacklist">
+     	insert  into  TB_BLACKLIST(USER_ID,OPERATE_MAN,OPERATE_TIME,REASON,STATE,CREATE_TIME,LAST_TIME)
+     	     values(#{userId},#{operateMan},#{operateTime},#{reason},#{state},#{createTime},#{lastTime})
+     	
+     </insert>
+    
+	
+</mapper> 

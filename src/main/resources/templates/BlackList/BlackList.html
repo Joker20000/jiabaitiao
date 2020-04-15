@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/js/plugins/layer/laydate/skins/default/laydate.css"/>
+    <style type="text/css">
+    </style>
+</head>
+<body class="gray-bg" style="overflow: hidden" sroll="no">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-body">
+                    <div class="fixed-table-toolbar">
+                        <div class="col-md-12">
+
+                        </div>
+                        <div class="col-xs-10 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="realname" type="text" class="form-control"
+                                   placeholder="员工姓名" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="col-xs-10 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="email" type="text" class="form-control"
+                                   placeholder="员工邮箱" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="col-xs-10 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="companyName" type="text" class="form-control"
+                                   placeholder="企业名称" onkeydown="onKeyDown(event)">
+                        </div>
+
+                        <div class="columns col-xs-10 col-md-4">
+                            <select data-placeholder="状态" class="form-control chosen-select"
+                                    tabindex="2" style="width: 100%" id="state" onkeydown="onKeyDown(event)">
+                                <option value="">状态</option>
+                                <option value="0">无效</option>
+                                <option value="1">有效</option>
+                            </select>
+                        </div>
+
+                        <div class="columns pull-right" style="margin-right: 16px; ">
+                            <button class="btn btn-success" onclick="reLoad()">查询</button>
+                            <button type="button" shiro:hasPermission="BlackList:BlacklistAdd" class="btn  btn-primary"
+                                    onclick="add()">
+                                添加
+                            </button>
+                            <button type="button" shiro:hasPermission="BlackList:BlacklistHave" class="btn  btn-primary"
+                                    onclick="updateBlackListState()">
+                                批量有效
+                            </button>
+                            <button type="button" shiro:hasPermission="BlackList:BlacklistNone" class="btn  btn-primary"
+                                    onclick="updateBlackListState1()">
+                                批量无效
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="z-index: 1;display: inline-block;width: 100%;">
+                        <table id="exampleTable" data-mobile-responsive="true" class="table text-nowrap">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案-->
+    <div>
+        <script type="text/javascript">
+            var s_edit_h = 'hidden';
+            var s_remove_h = 'hidden';
+            var s_resetPwd_h = 'hidden';
+        </script>
+    </div>
+    <div shiro:hasPermission="BlackList:BlacklistAdd">
+        <script type="text/javascript">
+            s_edit_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="BlackList:BlacklistHave">
+        <script type="text/javascript">
+            var s_remove_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="BlackList:BlacklistNone">
+        <script type="text/javascript">
+            var s_resetPwd_h = '';
+        </script>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" src="/js/appjs/BlackList/Blacklist.js"></script>
+<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js"></script>
+<script>
+
+    <!--清空方法-->
+    $("input").focus(function () {
+        $(this).parent().children(".input_clear").show();
+    });
+    $("input").blur(function () {
+        if ($(this).val() == '') {
+            $(this).parent().children(".input_clear").hide();
+        }
+    });
+    $(".input_clear").click(function () {
+        $(this).parent().find('input').val('');
+        $(this).hide();
+    });
+
+    function onKeyDown(event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 13) {
+            reLoad();
+        }
+
+    }
+</script>
+</body>
+</html>

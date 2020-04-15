@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+
+<head th:include="system/user/include :: header">
+</head>
+
+<body class="gray-bg">
+<input type="hidden" class="form-control" id="pass" th:value="${pass}"/>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="ibox">
+                <div class="ibox-title" style="padding-bottom: 0;">
+                    <h3 class="text-center">审核</h3>
+                    <div class="gg-nav">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#basic_info" data-toggle="tab">基础信息</a></li>
+                            <li><a href="#photo_info" data-toggle="tab">联系信息</a></li>
+                            <li><a href="#loan_info" data-toggle="tab">贷后信息</a></li>
+                            <li><a href="#shouji" data-toggle="tab">认证报告</a></li>
+                            <li><a href="#pwd_info" data-toggle="tab">初审</a></li>
+                            <li><a href="#fushen" data-toggle="tab">复审</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <!--基础信息-->
+                    <div class="ibox-content tab-pane fade in active" id="basic_info">
+                        <form class="gg-form" role="form" id="basicInfoForm">
+
+                            <!--企业ID-->
+                            <!--<input type="hidden" class="form-control" id="eid"  name="eid" th:value="${user.companyId}"/>-->
+                            <!--<input type="text" th:value="${user.companyId}"/>-->
+                            <!--渠道(''01''.嘉薪平台,''02''.嘉福平台)-->
+                            <!--<input type="hidden" class="form-control" id="channel" name="channel" th:value="${user.userChannelId}"/>-->
+                            <!-- <input type="text" th:value="${user.userChannelId=='01'?'嘉薪平台':'嘉福平台'}"/>-->
+                            <!--渠道管理员ID-->
+                            <!--<input type="hidden" class="form-control" id="cadminid" name="cadminid" th:value="${user.cadminid}"/>-->
+                            <!--信审状态('0'.待初审,'1'.初审挂起,'2'.待复审,'3'.复审挂起,'4'.复审回退,'5'.已完成)-->
+                            <!--<input type="hidden" class="form-control" id="state" name="state" th:value="${user.chackState}"/>-->
+                            <!-- <input type="text" th:value="${user.chackState=='0'?'待初审':
+                             (user.chackState=='1'?'初审挂起':(user.chackState=='2'?'待复审':(user.chackState=='3'?'复审挂起':(user.chackState=='4'?'复审回退':'已完成'))))}"/>-->
+                            <!--是否有效(''0''.无效,''1''.有效)-->
+                            <!--<input type="hidden" class="form-control" id="valid" name="valid" th:value="${user.valid}"/>-->
+                            <input type="hidden" class="form-control" id="chackno" name="chackno"
+                                   th:value="${use.chackNo}"/>
+                            <input type="hidden" class="form-control" id="accountNo" name="accountNo"
+                                   th:value="${acc.accountNo}"/>
+                            <input name="userId" type="hidden"/>
+                            <input id="overview" th:value="${overview}" type="hidden"/><!--区分初审、复审、总览-->
+                            <div>
+                                <em>用户来源</em>
+                                <div th:each="user,userStat : ${userList}">
+                                    <div class="gg-formGroup">
+                                        <div class="gg-formTitle">
+                                            <em class="gg-star">*</em>
+                                            <span>渠道名称：</span>
+                                        </div>
+                                        <div class="gg-formDetail">
+                                            <div>
+                                                <input type="text" class="form-control"
+                                                       style="width:74%;float:left;margin-right: 10px;" id="userChannelId"
+                                                       name="userChannelId"
+                                                       th:value="${user.userChannelId == '01' ? '嘉福平台':'嘉薪平台'}"
+                                                       disabled/>
+                                                <button shiro:hasPermission="sys:user:viewjfdatacs"
+                                                        th:onclick="'javascript:view('+${user.jfUserId}+');'"
+                                                        style="height: 34px;" class="btn btn-sm btn-primary"
+                                                        type="button">查看嘉福充值
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--<div class="gg-formGroup">
+                                        <div class="gg-formTitle">
+                                            <em class="gg-star">*</em>
+                                            <span>姓名：</span>
+                                        </div>
+                                        <div class="gg-formDetail">
+                                            <input type="text" class="form-control" id="realnames" name="realnames" th:value="${user.realname}" disabled />
+                                        </div>
+                                    </div>-->
+                                    <div class="gg-formGroup">
+                                        <div class="gg-formTitle">
+                                            <em class="gg-star">*</em>
+                                            <span>手机：</span>
+                                        </div>
+                                        <div class="gg-formDetail">
+                                            <input type="text" class="form-control" id="mobile" name="mobile"
+                                                   th:value="${user.mobile}" disabled/>
+                                        </div>
+                                    </div>
+                                    <div class="gg-formGroup">
+                                        <div class="gg-formTitle">
+                                            <em class="gg-star">*</em>
+                                            <span>企业ID：</span>
+                                        </div>
+                                        <div class="gg-formDetail">
+                                            <input type="text" class="form-control" id="companyId" name="companyId"
+                                                   th:value="${user.companyId}" disabled/>
+                                        </div>
+                                    </div>
+                                    <div class="gg-formGroup">
+                                        <div class="gg-formTitle">
+                                            <em class="gg-star">*</em>
+                                            <span>企业名称：</span>
+                                        </div>
+                                        <div class="gg-formDetail">
+                                            <input type="text" class="form-control" id="companyName" name="companyName"
+                                                   th:value="${user.companyName}" disabled/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--嘉福数据BEGIN-->
+                            <div shiro:hasPermission="sys:user:viewjfdatacs">
+                                <em>嘉福充值数据</em>
+                                <!--<span style="margin-left: 60px;">-->
+                            <!--<button onclick="view()" id="views" class="btn btn-sm btn-primary"-->
+                                    <!--type="button">查看</button>-->
+                            <!--<button onclick="collapse()" id="collapses" style="display: none"-->
+                                    <!--class="btn btn-sm btn-primary" type="button">收起</button>-->
+                            <!--</span>-->
+                                <div id="jfData"  style="display: none;margin-left: 17%;margin-right: 9.5%;margin-top: 10px;">
+                                    <table class="table">
+                                        <tr>
+                                            <td><span id="month5"></span></td><!--前四个月-->
+                                            <td><span id="month4"></span></td><!--前三个月-->
+                                            <td><span id="month3"></span></td><!--前二个月-->
+                                            <td><span id="month2"></span></td><!--前一个月-->
+                                            <td><span id="month1"></span></td><!--当前月-->
+                                            <td>合计</td>
+                                        </tr>
+                                        <tr style="text-align: left">
+                                            <td><span id="month5Detail"></span></td>
+                                            <td><span id="month4Detail"></span></td>
+                                            <td><span id="month3Detail"></span></td>
+                                            <td><span id="month2Detail"></span></td>
+                                            <td><span id="month1Detail"></span></td>
+                                            <td>
+                                                <span id="monthSumDetail"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <!--嘉福数据END-->
+                            <!--<div>
+                                <em>用户来源</em>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>渠道名称：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="userChannelId" name="userChannelId" th:value="${user.userChannelId == '01' ? '嘉薪平台':'嘉福平台'}" disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>姓名：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="realnames" name="realnames" th:value="${user.realname}" disabled />
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>手机：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="mobile" name="mobile" th:value="${user.mobile}" disabled />
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>企业ID：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="companyId" name="companyId" th:value="${user.companyId}" disabled />
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>企业名称：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="companyName" name="companyName" th:value="${user.companyName}" disabled />
+                                    </div>
+                                </div>
+                            </div>-->
+                            <div>
+                                <em>身份信息</em>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>认证状态：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="proveState" name="proveState"
+                                               th:value="${acc.proveState == '0' ? '未认证'
+                                        :(acc.proveState == '1' ? '已认证':(acc.proveState == '2' ? '认证中'
+                                        :(acc.proveState == '3' ? '审核中':(acc.proveState == '4' ? '未通过':''))))}"
+                                               disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>姓名：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="realname" name="realname"
+                                               th:value="${acc.realname}" disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>身份证号码：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="cardid" name="cardid"
+                                               th:value="${acc.cardid}" disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>会员等级：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="vipLevel" name="vipLevel"
+                                               th:value="${acc.vipLevel}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <em>同盾贷前结果</em>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>运营商三要素实名结果：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="ageState" name="realNameState"
+                                               th:value="${use.realNameState == '0' ? ''
+                                        :(use.realNameState == '1' ? '通过'
+                                        :(use.realNameState == '2' ? '未通过':(use.realNameState != '' ? use.realNameState:'')))}"
+                                               disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>自然人识别结果：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="naturalPersonState"
+                                               name="naturalPersonState"
+                                               th:value="${use.naturalPersonState == '0' ? ''
+                                        :(use.naturalPersonState == '1' ? '通过'
+                                        :(use.naturalPersonState == '2' ? '未通过':(use.naturalPersonState != '' ? use.naturalPersonState:'')))}"
+                                               disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>贷前审核结果：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="loanReviewState"
+                                               name="loanReviewState"
+                                               th:value="${use.loanReviewState=='0' ? ''
+                                               :(use.loanReviewState == '1' ? '通过'
+                                               :(use.loanReviewState == '2' ? '未通过':(use.loanReviewState != '' ? use.loanReviewState:'')))}"
+                                               disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star">*</em>
+                                        <span>贷前审核信用分：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="loanReviewFraction"
+                                               name="loanReviewFraction"
+                                               th:value="${use.loanReviewFraction}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <em>同盾失败原因</em>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star"></em>
+                                        <span>实名认证描述：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="realNameDsc" name="realNameDsc"
+                                               th:value="${use.realNameDsc}" disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star"></em>
+                                        <span>自然人识别描述：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="naturalPersonDsc"
+                                               name="naturalPersonDsc"
+                                               th:value="${use.naturalPersonDsc}" disabled/>
+                                    </div>
+                                </div>
+                                <div class="gg-formGroup">
+                                    <div class="gg-formTitle">
+                                        <em class="gg-star"></em>
+                                        <span>其他认证描述信息：</span>
+                                    </div>
+                                    <div class="gg-formDetail">
+                                        <input type="text" class="form-control" id="chackOtherDsc" name="chackOtherDsc"
+                                               th:value="${use.chackOtherDsc}" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!--联系信息-->
+                    <div class="ibox-content tab-pane fade gg" id="photo_info">
+                        <div class="ggcontainer" id="crop-avatar">
+                            <div id="address">
+
+                            </div>
+
+
+                            <!-- 联系人 -->
+                            <div id="contacts" class="ibox-content">
+                                <!--<em>联系人信息</em>-->
+                            </div>
+
+
+                            <!-- Loading state -->
+                            <div class="loading" aria-label="Loading" role="img" tabindex="-1"></div>
+                        </div>
+                    </div>
+                    <!--贷后信息-->
+                    <div class="ibox-content tab-pane fade" id="loan_info">
+                        <div class="gg-formGroup">
+                            <table id="exampleTable" data-mobile-responsive="true" class="table text-nowrap">
+                                <h4 class="text-left">信息列表</h4>
+                                <tr style="text-align: left" th:each="loanAfterInf,loanAfterInfStat : ${loanAfterInfList}">
+                                    <td colspan="5">
+                                        <textarea class="form-control" required style="height: 100px;resize:none" readonly="readonly" th:text="${loanAfterInf.content}"></textarea>
+                                        <span style="float: right;margin-right: 10px;" th:text="${loanAfterInf.createTime}"></span><span style="float: right;margin-right: 20px;" th:text="${loanAfterInf.operator}"></span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <!--手机认证-->
+                    <div class="ibox-content tab-pane fade" id="shouji">
+                        <div class="gg-formGroup">
+
+                        </div>
+                    </div>
+                    <!--*************初审************-->
+                    <div class="ibox-content tab-pane fade" id="pwd_info">
+                        <form class="gg-form" role="form" id="modifyPwd">
+                            <!--企业ID -->
+                            <!--<input type="hidden" class="form-control" id="companyName2"  name="tbChack.companyName" th:value="${user.companyId}"/>-->
+                            <!--信审编号-->
+                            <input type="hidden" class="form-control" id="chackNo2" name="tbChack.chackNo"
+                                   th:value="${use.chackNo}"/>
+                            <!--信审状态('0'.待初审,'1'.初审挂起,'2'.待复审,'3'.复审挂起,'4'.复审回退,'5'.已完成)-->
+                            <!--<input type="hidden" class="form-control" id="chackState2" name="tbChack.chackState" th:value="${user.chackState}" />-->
+                            <a id="logout1" class="hidden" href="/logout"></a>
+                            <!--当前用户id-->
+                            <!--  <input type="text" name ="userDO.userId" />-->
+                            <input type="hidden" class="form-control" name="userName" th:value="${users.username}"
+                                   hidden/>
+                            <input type="hidden" class="form-control" name="userId" th:value="${users.userId}" hidden/>
+                            <input type="hidden" class="form-control" name="tbChack.choose" value="1" hidden/>
+                            <div class="gg-formTitle">
+                                <em class="gg-star">*</em>
+                                <span>审核建议:</span>
+                            </div>
+                            <input id="anNiu1" th:value="${se1.result}" hidden/>
+                            <div class="form-group">
+
+                                <label class="columns btn ">
+                                    <input type="radio" name="options" value="1"> 通过
+                                </label>
+                                <label class="columns btn ">
+                                    <input type="radio" name="options" value="0"> 拒绝
+                                </label>
+                                <label class="columns btn ">
+                                    <input type="radio" name="options" value="3"> 挂起
+                                </label>
+                            </div>
+
+                            <!--<div class="gg-formTitle">
+                                <em class="gg-star">*</em>
+                                <span>授信额度:</span>
+                            </div>
+                            <div class="gg-formDetail">
+                                <input type="text" class="form-control" id="shouxinedu1" name="shouxin1" style="width: 250px" th:value="${se1.opinion}"/>
+                                <span class="gg-star" id="edu1"></span>
+                            </div>-->
+                            <div>
+                                <div class="gg-formTitle">
+                                    <em class="gg-star">*</em>
+                                    <span>具体意见:</span>
+                                </div>
+
+                                <textarea class="form-control" rows="5" name="opinion" id="show1"
+                                          th:utext="${se1.opinion}"></textarea>
+                            </div>
+                            <div></div>
+
+                        </form>
+                        <div class="gg-btnGroup">
+                            <input type="hidden" value="1">
+                            <button type="button" class="btn btn-sm btn-primary" id="saveButton">提交</button>
+                        </div>
+                    </div>
+                    <!-- **********复审*********-->
+                    <div class="ibox-content tab-pane fade" id="fushen">
+                        <form class="gg-form" role="form" id="selfushen">
+                            <!--企业ID 复审-->
+                            <!--<input type="hidden" class="form-control" id="companyName3"  name="tbChack.companyName" th:value="${user.companyId}"/>-->
+                            <!--信审编号-->
+                            <input type="hidden" class="form-control" id="chackNo3" name="tbChack.chackNo"
+                                   th:value="${use.chackNo}"/>
+                            <!--信审状态('0'.待初审,'1'.初审挂起,'2'.待复审,'3'.复审挂起,'4'.复审回退,'5'.已完成)-->
+                            <!--<input type="hidden" class="form-control" id="chackState3" name="tbChack.chackState" th:value="${user.chackState}" />-->
+                            <a id="logout2" class="hidden" href="/logout"></a>
+                            <!--当前用户id-->
+                            <input type="hidden" name="userDO.userId"/>
+                            <input type="hidden" class="form-control" name="userName" th:value="${users.username}"
+                                   hidden/>
+                            <input type="hidden" class="form-control" name="userId" th:value="${users.userId}" hidden/>
+                            <input type="hidden" class="form-control" name="tbChack.choose" value="2" hidden/>
+                            <div class="gg-formTitle">
+                                <em class="gg-star">*</em>
+                                <span>审核建议:</span>
+                            </div>
+                            <input id="anNiu2" th:value="${se2.result}" hidden/>
+                            <div class="form-group">
+                                <label class="btn ">
+                                    <input type="radio" name="options" value="1"> 通过
+                                </label>
+                                <label class="btn ">
+                                    <input type="radio" name="options" value="0"> 拒绝
+                                </label>
+                                <label class="btn ">
+                                    <input type="radio" name="options" value="2"> 回退初审
+                                </label>
+                                <label class="btn ">
+                                    <input type="radio" name="options" value="3"> 挂起
+                                </label>
+                            </div>
+
+                            <!--<div class="gg-formTitle">
+                                <em class="gg-star">*</em>
+                                <span>授信额度:</span>
+                            </div>
+                            <div class="gg-formDetail">
+                                <input type="text" class="form-control" id="shouxinedu2" name="shouxin2" style="width: 250px" th:value="${se2.opinion}"/>
+                                <span class="gg-star" id="edu2"></span>
+                            </div>-->
+                            <div>
+                                <div class="gg-formTitle">
+                                    <em class="gg-star">*</em>
+                                    <span>具体意见:</span>
+                                </div>
+                                <textarea class="form-control" rows="5" name="opinion"
+                                          th:utext="${se2.opinion}"></textarea>
+                            </div>
+                            <div></div>
+
+                        </form>
+                        <div class="gg-btnGroup">
+                            <input type="hidden" value="2">
+                            <button type="button" class="btn btn-sm btn-primary" id="saveButtons">提交</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:include="system/user/include :: footer"></div>
+<script>
+    var digitUppercase = function (n) {
+        var fraction = ['角', '分'];
+        var digit = [
+            '零', '壹', '贰', '叁', '肆',
+            '伍', '陆', '柒', '捌', '玖'
+        ];
+        var unit = [
+            ['元', '万', '亿'],
+            ['', '拾', '佰', '仟']
+        ];
+        var head = n < 0 ? '欠' : '';
+        n = Math.abs(n);
+        var s = '';
+        for (var i = 0; i < fraction.length; i++) {
+            s += (digit[Math.floor(n * 10 * Math.pow(10, i)) % 10] + fraction[i]).replace(/零./, '');
+        }
+        s = s || '整';
+        n = Math.floor(n);
+        for (var i = 0; i < unit[0].length && n > 0; i++) {
+            var p = '';
+            for (var j = 0; j < unit[1].length && n > 0; j++) {
+                p = digit[n % 10] + unit[1][j] + p;
+                n = Math.floor(n / 10);
+            }
+            s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s;
+        }
+        return head + s.replace(/(零.)*零元/, '元')
+            .replace(/(零.)+/g, '零')
+            .replace(/^整$/, '零元整');
+    };
+    $("#edu1").html(digitUppercase($("#modifyPwd input[name='shouxin1']").val()));
+    $("#edu2").html(digitUppercase($("#selfushen input[name='shouxin2']").val()));
+
+    $("#shouxinedu1").keyup(function () {
+        $("#edu1").html(digitUppercase($("#modifyPwd input[name='shouxin1']").val()));
+    });
+    $("#shouxinedu2").keyup(function () {
+        $("#edu2").html(digitUppercase($("#selfushen input[name='shouxin2']").val()));
+    });
+
+
+    //    if(creditline==null){
+    //        var se1 =  document.getElementById("shouxinedu1");
+    //        se1.value = "";
+    //    }
+
+</script>
+<script type="text/javascript" src="/js/appjs/Check/Review.js"></script>
+<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js"></script>
+</body>
+</html>

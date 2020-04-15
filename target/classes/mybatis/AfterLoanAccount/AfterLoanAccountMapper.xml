@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bootdo.AfterLoanAccount.dao.AfterLoanAccountDao">
+    <select id="findAfterLoanAccountList" parameterType="Map" resultType="com.bootdo.RepayPalan.domain.RepayPlan">
+        select
+        ti.ACCOUNT_NO as accountNo,
+        t.REPAY_PLAN_NO as repayPlanNo,
+        t.LOAN_ORDER_NO  as loanOrderNo,
+        tu.COMPANY_ID  as companyId,
+        tu.COMPANY_NAME  as companyName,
+        ti.REALNAME  as realname,
+        tb.VIP_LEVEL  as vipLevel,
+        tu.MOBILE  as mobile,
+        tu.USER_CHANNEL_ID as userChannelId,
+        tb.ORDER_TYPE  as orderType,
+        t.NOW_PERIOD  as nowPeriod,
+        tb.PERIOD_SUM  as periodSum,
+        t.NOW_AMOUNT  as shouldAmount,
+        t.NOW_ORDER_INTEREST as shouldOrderInterest,
+        t.NOW_INTEREST as shouldInterest,
+        t.NOW_OVERDUE  as nowOverdue,
+        t.OVERDUE_DAY_RATE  as overdueDayRate,
+        (CAST(t.NOW_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))+CAST(t.NOW_OVERDUE as DECIMAL(30,2)))  as repaymentSum,
+        t.TRANSFER_COST  as transferCost,
+        t.TRANSFER_RATE  as transferRate,
+        DATE_FORMAT(t.LATEST_TIME,'%Y-%m-%d')  as latestTime,
+        (CAST(t.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_OVERDUE as DECIMAL(30,2)))  as alreadyRepaidSum,
+        '0' as refundAmount,
+        ((CAST(t.NOW_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_INTEREST as DECIMAL(30,2))+CAST(t.NOW_OVERDUE as DECIMAL(30,2))) - (CAST(t.NOW_READY_AMOUNT as DECIMAL(30,2))+CAST(t.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_INTEREST as DECIMAL(30,2))+CAST(t.NOW_READY_OVERDUE as DECIMAL(30,2))))  as nowSurplusAmountSum,
+        t.REPAY_STATE as repayState,
+        t.OVERDUE_STATE as overdueState,
+        t.FULL_REPAYMENT_TIME  as fullRepaymentTime
+        from TB_REPAY_PLAN t,TB_LOAN_ORDER tb,TB_ACT_TRADING_FLOW tf,TB_USER tu,TB_ACCOUNT_INFO ti
+        where
+        t.LOAN_ORDER_NO = tb.LOAN_ORDER_NO
+        and tb.LOAN_ORDER_NO = tf.BIZID
+        and tf.USER_ID = tu.USER_ID
+        and ti.ACCOUNT_NO = tf.ACCOUNT_NO
+        and t.OVERDUE_STATE = '01'
+        and t.REPAY_STATE != '03'
+        <if test="repayPlanNo!=null and repayPlanNo!='' ">
+            and t.REPAY_PLAN_NO like #{repayPlanNo}
+        </if>
+        <if test="loanOrderNo!=null and loanOrderNo!='' ">
+            and t.LOAN_ORDER_NO like #{loanOrderNo}
+        </if>
+        <if test="realname!=null and realname!='' ">
+            and ti.REALNAME like #{realname}
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tu.MOBILE like #{mobile}
+        </if>
+        <if test="orderType!=null and orderType!='' ">
+            and tb.ORDER_TYPE = #{orderType}
+        </if>
+        <if test="repayState!=null and repayState!='' ">
+            and t.REPAY_STATE = #{repayState}
+        </if>
+        <if test="overdueState!=null and overdueState!='' ">
+            and t.OVERDUE_STATE = #{overdueState}
+        </if>
+        <if test="latestTimeStart!=null and latestTimeStart!='' ">
+            <![CDATA[ and t.LATEST_TIME >= #{latestTimeStart} ]]>
+        </if>
+        <if test="latestTimeEnd!=null and latestTimeEnd!='' ">
+            <![CDATA[ and t.LATEST_TIME <= date_add(#{latestTimeEnd}, interval 1 day)]]>
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tu.MOBILE = #{mobile}
+        </if>
+        ORDER BY t.REPAY_STATE,t.LATEST_TIME
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="getTotaAfterLoanAccountList" parameterType="Map" resultType="Long">
+        select
+        count(*)
+        from TB_REPAY_PLAN t,TB_LOAN_ORDER tb,TB_ACT_TRADING_FLOW tf,TB_USER tu,TB_ACCOUNT_INFO ti
+        where
+        t.LOAN_ORDER_NO = tb.LOAN_ORDER_NO
+        and tb.LOAN_ORDER_NO = tf.BIZID
+        and tf.USER_ID = tu.USER_ID
+        and ti.ACCOUNT_NO = tf.ACCOUNT_NO
+        and t.OVERDUE_STATE = '01'
+        and t.REPAY_STATE != '03'
+        <if test="repayPlanNo!=null and repayPlanNo!='' ">
+            and t.REPAY_PLAN_NO like #{repayPlanNo}
+        </if>
+        <if test="loanOrderNo!=null and loanOrderNo!='' ">
+            and t.LOAN_ORDER_NO like #{loanOrderNo}
+        </if>
+        <if test="realname!=null and realname!='' ">
+            and ti.REALNAME like #{realname}
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tu.MOBILE like #{mobile}
+        </if>
+        <if test="orderType!=null and orderType!='' ">
+            and tb.ORDER_TYPE = #{orderType}
+        </if>
+        <if test="repayState!=null and repayState!='' ">
+            and t.REPAY_STATE = #{repayState}
+        </if>
+        <if test="overdueState!=null and overdueState!='' ">
+            and t.OVERDUE_STATE = #{overdueState}
+        </if>
+        <if test="latestTimeStart!=null and latestTimeStart!='' ">
+            <![CDATA[ and t.LATEST_TIME >= #{latestTimeStart} ]]>
+        </if>
+        <if test="latestTimeEnd!=null and latestTimeEnd!='' ">
+            <![CDATA[ and t.LATEST_TIME <= date_add(#{latestTimeEnd}, interval 1 day) ]]>
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tu.MOBILE = #{mobile}
+        </if>
+    </select>
+
+    <select id="getList" resultType="java.util.HashMap">
+      SELECT rp.REPAY_PLAN_NO as repayPlanNo,@rownum := @rownum +1 AS ranks
+      FROM TB_LOAN_ORDER lo LEFT JOIN TB_REPAY_PLAN rp ON lo.LOAN_ORDER_NO = rp.LOAN_ORDER_NO, (SELECT@rownum :=0) r WHERE lo.ACCOUNT_NO = #{acccountNo}
+      and (rp.REPAY_STATE = '01' OR rp.REPAY_STATE = '02')
+      ORDER BY rp.LATEST_TIME
+    </select>
+
+    <!--uname 姓名-->
+    <!--totalMoney 总代还-->
+    <!--countNum 总代还笔数-->
+    <!--remaMoney 剩余代还-->
+    <!--lastPay 最后还清日-->
+    <select id="searchUserRemaRepayByNo" resultType="java.util.HashMap">
+    SELECT (SELECT count(*) as countNum FROM
+			TB_LOAN_ORDER lo LEFT JOIN TB_REPAY_PLAN rp ON lo.LOAN_ORDER_NO = rp.LOAN_ORDER_NO WHERE lo.ACCOUNT_NO = #{accountNo}
+      and rp.REPAY_STATE != '03')AS countNum,
+      (SELECT ai.REALNAME as uname FROM TB_ACCOUNT_INFO ai WHERE ai.ACCOUNT_NO = #{accountNo} LIMIT 1)AS uname,
+      (SELECT tpl.LATEST_TIME FROM TB_REPAY_PLAN tpl WHERE tpl.REPAY_PLAN_NO = #{repayPlanNo}) as lastPayDay,
+			(select SUM((CAST(rp.NOW_AMOUNT as DECIMAL(30,2))
+    +CAST(rp.NOW_ORDER_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_OVERDUE as DECIMAL(30,2)))
+    - (CAST(rp.NOW_READY_AMOUNT as DECIMAL(30,2))
+    +CAST(rp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_READY_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2))))
+    FROM TB_LOAN_ORDER lo LEFT JOIN TB_REPAY_PLAN rp ON lo.LOAN_ORDER_NO = rp.LOAN_ORDER_NO WHERE lo.ACCOUNT_NO = #{accountNo})AS totalMoney,
+                (select SUM((CAST(rp.NOW_AMOUNT as DECIMAL(30,2))
+    +CAST(rp.NOW_ORDER_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_OVERDUE as DECIMAL(30,2)))
+    - (CAST(rp.NOW_READY_AMOUNT as DECIMAL(30,2))
+    +CAST(rp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_READY_INTEREST as DECIMAL(30,2))
+    +CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2))))
+    FROM TB_LOAN_ORDER lo LEFT JOIN TB_REPAY_PLAN rp ON lo.LOAN_ORDER_NO = rp.LOAN_ORDER_NO WHERE lo.ACCOUNT_NO = #{accountNo} AND rp.REPAY_PLAN_NO = #{repayPlanNo})AS remaMoney
+    </select>
+
+    <!--费用减免-->
+    <!--查询该还款计划，当期应还本金（shouldMoney）、当期应还服务费（shouldFee）、当期逾期费用（nowoverdueFee）、当期应还逾期费用（overdueFee）、当期已还金额（alreadyPaid）、当期剩余待还金额（returnMoney）-->
+    <select id="searchUserNowFeeByRepayNo" resultType="java.util.HashMap">
+    SELECT
+      rp.NOW_AMOUNT as shouldMoney,
+      CAST(rp.NOW_OVERDUE as DECIMAL(30,2)) as nowoverdueFee,
+      rp.NOW_INTEREST as shouldFee, CAST(rp.NOW_OVERDUE as DECIMAL(30,2))- (CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2))) as overdueFee,
+      (CAST(rp.NOW_READY_AMOUNT as DECIMAL(30,2)) + CAST(rp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2))) as alreadyPaid,
+        SUM((CAST(rp.NOW_AMOUNT as DECIMAL(30,2)) + CAST(rp.NOW_ORDER_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_OVERDUE as DECIMAL(30,2)))
+        - (CAST(rp.NOW_READY_AMOUNT as DECIMAL(30,2)) + CAST(rp.NOW_READY_ORDER_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_INTEREST as DECIMAL(30,2)) + CAST(rp.NOW_READY_OVERDUE as DECIMAL(30,2)))) as returnMoney,
+        '' as appShouldMoney,
+        '' as makeLastTime,
+        '' as oriReason,
+        '' as applicant,
+        '' as createTime,
+        '' as appNo
+    FROM TB_REPAY_PLAN rp
+    WHERE rp.REPAY_PLAN_NO = #{repayPlanNo}
+    </select>
+
+    <select id="getMessageList" resultType="java.util.HashMap">
+        SELECT MESSAGE_ONE as messageOne,
+			MESSAGE_TWO AS messageTwo
+            FROM TB_PARAMETER
+    </select>
+
+    <select id="getMobile" resultType="java.lang.String">
+        SELECT tm.MOBILE  FROM TB_CHACK AS tc,TB_USER_MOBILE tm
+        WHERE tc.CHACK_NO = tm.CHACK_NO
+        AND tc.ACCOUNT_NO = #{accountNo}
+        AND tc.CHACK_TYPE = '03' AND tc.VALID = '1'
+    </select>
+
+    <select id="findAfterSmsLoanOrder" parameterType="Map" resultType="com.bootdo.AfterLoanAccount.domain.SmsLoanOrder">
+        SELECT
+        ts.PHONE AS phone,
+        ts.SEND_CONTENT as sendContent,
+        ts.OPERATOR as operator,
+        ts.OPERATOR_ID as operatorId,
+        ts.Loan_name as loanName,
+        ts.Loan_Phone as loanPhone,
+        ts.CREATE_TIME as createTime
+        FROM
+        TB_SMS_LOAN_RECORD as ts
+        WHERE 1=1
+        <if test="mobile!=null and mobile!='' ">
+            and ts.Loan_Phone like #{mobile}
+        </if>
+        <if test="loanName!=null and loanName!='' ">
+            and ts.Loan_name like #{loanName}
+        </if>
+        ORDER BY ts.CREATE_TIME DESC
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="getTotaAfterSmsLoanOrder" parameterType="Map" resultType="Long">
+        select
+        count(*)
+        FROM
+        TB_SMS_LOAN_RECORD as ts
+        WHERE 1=1
+        <if test="mobile!=null and mobile!='' ">
+            and ts.Loan_Phone like #{mobile}
+        </if>
+        <if test="loanName!=null and loanName!='' ">
+            and ts.Loan_name like #{loanName}
+        </if>
+    </select>
+</mapper> 

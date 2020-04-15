@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="include :: header">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/js/plugins/layer/laydate/skins/default/laydate.css"/>
+</head>
+<body class="gray-bg" style="overflow: hidden" sroll="no">
+<div class="wrapper wrapper-content ">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox" style="margin: 0px;">
+                <div class="ibox-body">
+                    <div class="fixed-table-toolbar">
+                        <div class="columns col-xs-10 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="repayPlanNo" type="text" class="form-control"
+                                   placeholder="还款计划编号" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="columns col-xs-10 col-md-4">
+                            <div style="position:absolute;right:25px;top:7px;cursor:pointer;display:none;" class="input_clear">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: black;">×</button>
+                            </div><!---清空按钮-->
+                            <input id="tel" type="text" class="form-control"
+                                   placeholder="手机号" onkeydown="onKeyDown(event)">
+                        </div>
+                        <div class="columns col-xs-10 col-md-4">
+                            <select data-placeholder="审批状态" class="form-control chosen-select"
+                                    tabindex="2" style="width: 100%" id="appRovalState" onkeydown="onKeyDown(event)">
+                                <option value="">审批状态</option>
+                                <option value="0">待审核</option>
+                                <option value="1">通过</option>
+                                <option value="2">拒绝</option>
+                            </select>
+                        </div>
+					</div>
+
+                    <div class="columns pull-right"style="float:left;margin-right:30px;">
+                        <button shiro:hasPermission="loan:loan:check" type="button"
+                                class="btn  btn-danger" onclick="check()">
+                            <i class="fa" aria-hidden="true"></i>审批
+                        </button>
+                        <button shiro:hasPermission="loan:loan:checkCownExcel" type="button" class="btn btn-primary" onclick="exportExcel()">
+                            <i class="fa fa-export" aria-hidden="true"></i>下载
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="reLoad()">
+                            <i class="fa fa-export" aria-hidden="true"></i>查询
+                        </button>
+                    </div>
+
+
+					<div class="table-responsive" style="z-index: 1;display: inline-block;width: 100%;">
+                        <table id="exampleTable" data-mobile-responsive="true" class="table text-nowrap">
+                        </table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--shiro控制bootstraptable行内按钮看见性 来自bootdo的创新方案-->
+	<div>
+		<script type="text/javascript">
+            var s_remove_h = 'hidden';
+            var s_down_e = 'hidden';
+        </script>
+    </div>
+    <div shiro:hasPermission="loan:loan:check">
+        <script type="text/javascript">
+            var s_remove_h = '';
+        </script>
+    </div>
+    <div shiro:hasPermission="loan:loan:checkCownExcel">
+        <script type="text/javascript">
+            var s_down_e = '';
+        </script>
+    </div>
+</div>
+<div th:include="include :: footer"></div>
+<script type="text/javascript" src="/js/appjs/AfterLoanAccount/FeeReductionList.js"></script>
+<script type="text/javascript" src="/js/plugins/layer/laydate/laydate.js"></script>
+<script>
+
+    <!--清空方法-->
+    $("input").focus(function () {
+        $(this).parent().children(".input_clear").show();
+    });
+    $("input").blur(function () {
+        if ($(this).val() == '') {
+            $(this).parent().children(".input_clear").hide();
+        }
+    });
+    $(".input_clear").click(function () {
+        $(this).parent().find('input').val('');
+        $(this).hide();
+    });
+
+    function onKeyDown(event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 13) {
+            reLoad();
+        }
+
+    }
+</script>
+</body>
+</html>

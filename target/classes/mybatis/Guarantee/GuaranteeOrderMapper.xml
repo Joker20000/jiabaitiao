@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bootdo.GuaranteeOrder.dao.GuaranteeOrderDao">
+
+    <select id="findGuaranteeOrderList" parameterType="Map" resultType="com.bootdo.GuaranteeOrder.domain.GuaranteeOrderEntity">
+        SELECT
+        tg.GUARANTEE_ORDER_ID AS guaranteeOrderId,
+        tgr.GUARANTEE_REPAY_ID AS guaranteeRepayId,
+        tb.COMPANY_NAME AS companyName,
+        ta.REALNAME AS realName,
+        tb.MOBILE AS mobile,
+        tb.EMAIL AS email,
+        tg.AMOUNT AS amount,
+        tg.REPAY_STATE AS repayState,
+        tg.EXT_ORDER_ID AS extOrderId,
+        tgr.EXT_ORDER_ID AS extRepayOrderId,
+        tgr.JF_REPAY_NO AS jfRepayNo,
+        tg.CREATE_DATE AS createDate,
+        tgr.CREATE_DATE AS repayDate
+        FROM
+        TB_GUARANTEE_ORDER tg
+        LEFT JOIN TB_GUARANTEE_REPAY_ORDER tgr ON tg.GUARANTEE_ORDER_ID = tgr.GUARANTEE_ORDER_ID
+        LEFT JOIN TB_ACCOUNT_INFO ta ON tg.ACCOUNT_NO = ta.ACCOUNT_NO
+        LEFT JOIN TB_USER tb ON tg.USER_ID = tb.USER_ID
+        WHERE
+        1 = 1
+        <if test="guaranteeOrderId!=null and guaranteeOrderId!='' ">
+            and tg.GUARANTEE_ORDER_ID like #{guaranteeOrderId}
+        </if>
+        <if test="companyName!=null and companyName!='' ">
+            and tb.COMPANY_NAME like #{companyName}
+        </if>
+        <if test="realName!=null and realName!='' ">
+            and ta.REALNAME like #{realName}
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tb.MOBILE like #{mobile}
+        </if>
+        <if test="repayState!=null and repayState!='' ">
+            and tg.REPAY_STATE = #{repayState}
+        </if>
+        <if test = "createTimeStart!=null and createTimeStart!='' " >
+            <![CDATA[ and tg.CREATE_DATE >= #{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!='' ">
+            <![CDATA[ and tg.CREATE_DATE <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+        </if>
+        <if test = "repayTimeStart!=null and repayTimeStart!='' " >
+            <![CDATA[ and tgr.CREATE_DATE >= #{repayTimeStart} ]]>
+        </if>
+        <if test="repayTimeEnd!=null and repayTimeEnd!='' ">
+            <![CDATA[ and tgr.CREATE_DATE <= date_add(#{repayTimeEnd}, interval 1 day) ]]>
+        </if>
+        ORDER BY tg.CREATE_DATE DESC
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+
+    <select id="countGuaranteeOrder" parameterType="Map" resultType="java.lang.Integer">
+        select
+        count(*)
+        FROM
+        TB_GUARANTEE_ORDER tg
+        LEFT JOIN TB_GUARANTEE_REPAY_ORDER tgr ON tg.GUARANTEE_ORDER_ID = tgr.GUARANTEE_ORDER_ID
+        LEFT JOIN TB_ACCOUNT_INFO ta ON tg.ACCOUNT_NO = ta.ACCOUNT_NO
+        LEFT JOIN TB_USER tb ON tg.USER_ID = tb.USER_ID
+        WHERE
+        1 = 1
+        <if test="guaranteeOrderId!=null and guaranteeOrderId!='' ">
+            and tg.GUARANTEE_ORDER_ID like #{guaranteeOrderId}
+        </if>
+        <if test="companyName!=null and companyName!='' ">
+            and tb.COMPANY_NAME like #{companyName}
+        </if>
+        <if test="realName!=null and realName!='' ">
+            and ta.REALNAME like #{realName}
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tb.MOBILE like #{mobile}
+        </if>
+        <if test="repayState!=null and repayState!='' ">
+            and tg.REPAY_STATE = #{repayState}
+        </if>
+        <if test = "createTimeStart!=null and createTimeStart!='' " >
+            <![CDATA[ and tg.CREATE_DATE >= #{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!='' ">
+            <![CDATA[ and tg.CREATE_DATE <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+        </if>
+        <if test = "repayTimeStart!=null and repayTimeStart!='' " >
+            <![CDATA[ and tgr.CREATE_DATE >= #{repayTimeStart} ]]>
+        </if>
+        <if test="repayTimeEnd!=null and repayTimeEnd!='' ">
+            <![CDATA[ and tgr.CREATE_DATE <= date_add(#{repayTimeEnd}, interval 1 day) ]]>
+        </if>
+    </select>
+
+    <select id="findGuaranteeOrderListN" parameterType="Map" resultType="java.util.HashMap">
+        SELECT
+        tg.GUARANTEE_ORDER_ID AS guaranteeOrderId,
+        IFNULL(tgr.GUARANTEE_REPAY_ID, '') AS guaranteeRepayId,
+        tb.COMPANY_NAME AS companyName,
+        ta.REALNAME AS realName,
+        tb.MOBILE AS mobile,
+        tb.EMAIL AS email,
+        tg.AMOUNT AS amount,
+        case when tg.REPAY_STATE = '01' then '待还款' when tg.REPAY_STATE = '02' then '已还清'  else '' end as repayState,
+        tg.EXT_ORDER_ID AS extOrderId,
+        IFNULL(tgr.EXT_ORDER_ID, '')  AS extRepayOrderId,
+        IFNULL(tgr.JF_REPAY_NO, '')  AS jfRepayNo,
+        tg.CREATE_DATE AS createDate,
+        IFNULL(tgr.CREATE_DATE, '') AS repayDate
+        FROM
+        TB_GUARANTEE_ORDER tg
+        LEFT JOIN TB_GUARANTEE_REPAY_ORDER tgr ON tg.GUARANTEE_ORDER_ID = tgr.GUARANTEE_ORDER_ID
+        LEFT JOIN TB_ACCOUNT_INFO ta ON tg.ACCOUNT_NO = ta.ACCOUNT_NO
+        LEFT JOIN TB_USER tb ON tg.USER_ID = tb.USER_ID
+        WHERE
+        1 = 1
+        <if test="guaranteeOrderId!=null and guaranteeOrderId!='' ">
+            and tg.GUARANTEE_ORDER_ID like #{guaranteeOrderId}
+        </if>
+        <if test="companyName!=null and companyName!='' ">
+            and tb.COMPANY_NAME like #{companyName}
+        </if>
+        <if test="realName!=null and realName!='' ">
+            and ta.REALNAME like #{realName}
+        </if>
+        <if test="mobile!=null and mobile!='' ">
+            and tb.MOBILE like #{mobile}
+        </if>
+        <if test="repayState!=null and repayState!='' ">
+            and tg.REPAY_STATE = #{repayState}
+        </if>
+        <if test = "createTimeStart!=null and createTimeStart!='' " >
+            <![CDATA[ and tg.CREATE_DATE >= #{createTimeStart} ]]>
+        </if>
+        <if test="createTimeEnd!=null and createTimeEnd!='' ">
+            <![CDATA[ and tg.CREATE_DATE <= date_add(#{createTimeEnd}, interval 1 day) ]]>
+        </if>
+        <if test = "repayTimeStart!=null and repayTimeStart!='' " >
+            <![CDATA[ and tgr.CREATE_DATE >= #{repayTimeStart} ]]>
+        </if>
+        <if test="repayTimeEnd!=null and repayTimeEnd!='' ">
+            <![CDATA[ and tgr.CREATE_DATE <= date_add(#{repayTimeEnd}, interval 1 day) ]]>
+        </if>
+        ORDER BY tg.CREATE_DATE DESC
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+</mapper>
