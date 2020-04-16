@@ -13,4 +13,6 @@ import java.io.Serializable;
 public class PageDTO implements Serializable {
     private Integer offset;
     private Integer limit;
+
+
 }

@@ -48,6 +48,8 @@ public class UserControlController extends BaseController {
     @ResponseBody
     public void excelUserControlList(UserDTO userDTO, HttpServletResponse response) {
         try {
+            userDTO.setLimit(null);
+            userDTO.setOffset(null);
             List<TbIncrementUser> tbIncrementUserList = userControlService.selectUserControlList(userDTO);
             String[] title = {
                     "用户ID", "姓名", "手机号", "邮箱", "用户渠道", "企业ID", "企业名称", "开通时间"

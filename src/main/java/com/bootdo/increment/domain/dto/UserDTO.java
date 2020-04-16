@@ -13,7 +13,7 @@ import java.util.Date;
  * @Date : 2020-04-12 22:16
  **/
 @Data
-public class UserDTO extends PageDO<T> implements Serializable {
+public class UserDTO extends PageDTO implements Serializable {
     private Integer userId;
     private String userName;
     private String userMobile;

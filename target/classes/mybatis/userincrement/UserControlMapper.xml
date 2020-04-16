@@ -42,7 +42,7 @@
         tb_increment_user
         <include refid="UserControl"></include>
         order by tb_increment_user.create_date desc
-        <if test="offset != '' and limit != ''">
+        <if test="offset != null and limit != null">
             limit ${offset},${limit}
         </if>
 
